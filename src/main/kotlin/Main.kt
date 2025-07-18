@@ -77,7 +77,8 @@ fun App() {
                                     selectedFile.value = it
                                     showFileDialog.value = false
                                 },
-                                onDismiss = { showFileDialog.value = false }
+                                onDismiss = { showFileDialog.value = false },
+                                showOnlyDirectories = true
                             )
                         }
                     }

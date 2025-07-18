@@ -20,9 +20,12 @@ import androidx.compose.material.icons.filled.AccountBox
 fun FileSelectDialog(
     directory: File,
     onFileSelected: (File) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    showOnlyDirectories: Boolean = false
 ) {
-    val files = directory.listFiles()?.toList() ?: emptyList()
+    val files = directory.listFiles()?.toList()?.filter {
+        if (showOnlyDirectories) it.isDirectory else true
+    } ?: emptyList()
     val columns = 4 // Number of columns per row
     val rows = if (files.isNotEmpty()) (files.size + columns - 1) / columns else 0
     // Prepare grid data: each column is a list of files
