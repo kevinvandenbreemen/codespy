@@ -1,9 +1,14 @@
 package com.vandenbreemen
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.IconButton
@@ -13,12 +18,17 @@ import androidx.compose.material.DrawerValue
 import androidx.compose.material.rememberDrawerState
 import androidx.compose.material.ModalDrawer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import java.io.File
 import kotlinx.coroutines.launch
+import com.vandenbreemen.codespy.ui.FileSelectDialog
 
 
 
@@ -27,6 +37,8 @@ import kotlinx.coroutines.launch
 fun App() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val showFileDialog = remember { mutableStateOf(false) }
+    val selectedFile = remember { mutableStateOf<File?>(null) }
 
     MaterialTheme {
         ModalDrawer(
@@ -50,8 +62,25 @@ fun App() {
                     )
                 }
             ) {
-                Column {
-                    Text("Hello world!")
+                Surface(modifier = Modifier.padding(16.dp)) {
+                    Column {
+                        Button(onClick = { showFileDialog.value = true }) {
+                            Text("Select File")
+                        }
+                        selectedFile.value?.let {
+                            Text("Selected: ${it.name}")
+                        }
+                        if (showFileDialog.value) {
+                            FileSelectDialog(
+                                directory = File(System.getProperty("user.home")),
+                                onFileSelected = {
+                                    selectedFile.value = it
+                                    showFileDialog.value = false
+                                },
+                                onDismiss = { showFileDialog.value = false }
+                            )
+                        }
+                    }
                 }
             }
         }
