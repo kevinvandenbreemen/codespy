@@ -40,42 +40,44 @@ fun FileSelectDialog(
         onDismissRequest = onDismiss,
         title = { Text("Select a directory") },
         text = {
-            Column {
-                if (currentDirectory.value.parentFile != null) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.AccountBox, contentDescription = "Folder", modifier = Modifier.size(20.dp))
-                        Text("..", modifier = Modifier.clickable {
-                            currentDirectory.value = currentDirectory.value.parentFile!!
-                        }.padding(4.dp))
+            Box(modifier = Modifier.size(width = 500.dp, height = 300.dp)) {
+                Column {
+                    if (currentDirectory.value.parentFile != null) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.AccountBox, contentDescription = "Folder", modifier = Modifier.size(20.dp))
+                            Text("..", modifier = Modifier.clickable {
+                                currentDirectory.value = currentDirectory.value.parentFile!!
+                            }.padding(4.dp))
+                        }
                     }
-                }
-                LazyRow {
-                    items(gridColumns) { columnFiles ->
-                        Column {
-                            columnFiles.forEach { file ->
-                                if (file != null) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        if (file.isDirectory) {
-                                            Icon(Icons.Filled.AccountBox, contentDescription = "Folder", modifier = Modifier.size(20.dp))
-                                            Text(
-                                                file.name,
-                                                modifier = Modifier.clickable {
-                                                    currentDirectory.value = file
-                                                }.padding(4.dp)
-                                            )
-                                        } else {
-                                            Text(
-                                                file.name,
-                                                modifier = Modifier.padding(4.dp)
-                                            )
+                    LazyRow {
+                        items(gridColumns) { columnFiles ->
+                            Column {
+                                columnFiles.forEach { file ->
+                                    if (file != null) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            if (file.isDirectory) {
+                                                Icon(Icons.Filled.AccountBox, contentDescription = "Folder", modifier = Modifier.size(20.dp))
+                                                Text(
+                                                    file.name,
+                                                    modifier = Modifier.clickable {
+                                                        currentDirectory.value = file
+                                                    }.padding(4.dp)
+                                                )
+                                            } else {
+                                                Text(
+                                                    file.name,
+                                                    modifier = Modifier.padding(4.dp)
+                                                )
+                                            }
                                         }
+                                    } else {
+                                        Spacer(modifier = Modifier.padding(4.dp))
                                     }
-                                } else {
-                                    Spacer(modifier = Modifier.padding(4.dp))
                                 }
                             }
+                            Spacer(modifier = Modifier.width(16.dp))
                         }
-                        Spacer(modifier = Modifier.width(16.dp))
                     }
                 }
             }
