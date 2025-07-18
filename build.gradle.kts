@@ -11,6 +11,9 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+
+    maven { setUrl("https://jitpack.io") }
+
     mavenCentral()
     google()
 }
@@ -24,6 +27,9 @@ dependencies {
     implementation(compose.desktop.currentOs)
 
     testImplementation(kotlin("test"))
+
+    val grucdVersion = "1.0.7.1100"
+    implementation("com.github.kevinvandenbreemen:grucd:$grucdVersion")
 }
 
 tasks.test {

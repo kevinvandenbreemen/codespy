@@ -29,12 +29,16 @@ import androidx.compose.ui.window.rememberWindowState
 import java.io.File
 import kotlinx.coroutines.launch
 import com.vandenbreemen.codespy.ui.FileSelectDialog
-
+import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 
 
 @Composable
 @Preview
 fun App() {
+
+    //  Set up the view model here
+    val viewModel = Dependencies.main.codeSpyViewModel()
+
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val showFileDialog = remember { mutableStateOf(false) }
