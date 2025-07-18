@@ -1,5 +1,7 @@
 package com.vandenbreemen.com.vandenbreemen.codespy.di
 
+import com.vandenbreemen.com.vandenbreemen.codespy.interactor.GrucdInteractor
+
 /**
  * Not gonna worry about trying to import some new DI framework.  Just gonna write my own simple
  * stuff for now
@@ -10,8 +12,8 @@ class Dependencies {
         val main = Dependencies()
     }
 
-    private val grucdInteractor: com.vandenbreemen.com.vandenbreemen.codespy.interactor.GrucdInteractor by lazy {
-        grucdInteractor()
+    private val grucdInteractor: GrucdInteractor by lazy {
+        GrucdInteractor()
     }
 
     fun grucdInteractor() = grucdInteractor
