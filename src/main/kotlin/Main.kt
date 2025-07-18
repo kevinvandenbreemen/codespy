@@ -4,35 +4,21 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
-import androidx.compose.material.IconButton
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.DrawerValue
-import androidx.compose.material.rememberDrawerState
-import androidx.compose.material.ModalDrawer
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import java.io.File
-import kotlinx.coroutines.launch
 import com.vandenbreemen.codespy.ui.FileSelectDialog
+import com.vandenbreemen.codespy.ui.ModelRendering
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.viewmodel.CodeSpyViewModel
-import com.vandenbreemen.codespy.ui.ModelRendering
+import kotlinx.coroutines.launch
+import java.io.File
 
 
 @Composable
@@ -46,6 +32,7 @@ fun App() {
     val scope = rememberCoroutineScope()
     val showFileDialog = remember { mutableStateOf(false) }
     val selectedFile = remember { mutableStateOf<File?>(null) }
+    val showTypeDialog = remember { mutableStateOf(false) }
 
     MaterialTheme {
         ModalDrawer(
@@ -54,7 +41,12 @@ fun App() {
                 Column {
                     val model = viewModel.modelState.value
                     if (model != null) {
-                        Text("Select type to view", modifier = Modifier.padding(vertical = 8.dp))
+                        Text(
+                            "Select type to view",
+                            modifier = Modifier
+                                .padding(vertical = 8.dp)
+                                .clickable { showTypeDialog.value = true }
+                        )
                     }
                 }
             }
@@ -103,6 +95,12 @@ fun App() {
                         // Render the model if available
                         val model = viewModel.modelState.value
                         ModelRendering(model)
+                        if (showTypeDialog.value && model != null) {
+                            com.vandenbreemen.codespy.ui.SelectTypeDialog(
+                                model = model,
+                                onDismiss = { showTypeDialog.value = false }
+                            )
+                        }
                     }
                 }
             }
