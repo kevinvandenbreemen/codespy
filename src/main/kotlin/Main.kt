@@ -44,7 +44,10 @@ fun App() {
                         "UI tester",
                         modifier = Modifier
                             .padding(vertical = 8.dp)
-                            .clickable { showUiTester.value = true }
+                            .clickable {
+                                showUiTester.value = true
+                                scope.launch { drawerState.close() }
+                            }
                     )
                     val model = viewModel.modelState.value
                     if (model != null) {
@@ -52,7 +55,10 @@ fun App() {
                             "Select type to view",
                             modifier = Modifier
                                 .padding(vertical = 8.dp)
-                                .clickable { showTypeDialog.value = true }
+                                .clickable {
+                                    showTypeDialog.value = true
+                                    scope.launch { drawerState.close() }
+                                }
                         )
                     }
                 }
