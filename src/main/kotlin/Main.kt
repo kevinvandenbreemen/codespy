@@ -52,8 +52,10 @@ fun App() {
             drawerState = drawerState,
             drawerContent = {
                 Column {
-                    Text("Menu Item 1")
-                    Text("Menu Item 2")
+                    val model = viewModel.modelState.value
+                    if (model != null) {
+                        Text("Select type to view", modifier = Modifier.padding(vertical = 8.dp))
+                    }
                 }
             }
         ) {
