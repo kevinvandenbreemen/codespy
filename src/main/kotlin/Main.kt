@@ -33,12 +33,19 @@ fun App() {
     val showFileDialog = remember { mutableStateOf(false) }
     val selectedFile = remember { mutableStateOf<File?>(null) }
     val showTypeDialog = remember { mutableStateOf(false) }
+    val showUiTester = remember { mutableStateOf(false) }
 
     MaterialTheme {
         ModalDrawer(
             drawerState = drawerState,
             drawerContent = {
                 Column {
+                    Text(
+                        "UI tester",
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
+                            .clickable { showUiTester.value = true }
+                    )
                     val model = viewModel.modelState.value
                     if (model != null) {
                         Text(
@@ -51,55 +58,59 @@ fun App() {
                 }
             }
         ) {
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = { Text("My App Title") },
-                        navigationIcon = {
-                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                androidx.compose.material.Icon(Icons.Filled.Menu, contentDescription = "Menu")
+            if (showUiTester.value) {
+                com.vandenbreemen.codespy.ui.UiTesterScreen(onBack = { showUiTester.value = false })
+            } else {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("My App Title") },
+                            navigationIcon = {
+                                IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                                    androidx.compose.material.Icon(Icons.Filled.Menu, contentDescription = "Menu")
+                                }
                             }
-                        }
-                    )
-                }
-            ) {
-                Surface(modifier = Modifier.padding(16.dp)) {
-                    Column {
-                        Button(onClick = { showFileDialog.value = true }) {
-                            Text("Select File")
-                        }
-                        selectedFile.value?.let {
-                            Text("Selected: ${it.name}")
-                        }
-                        if (showFileDialog.value) {
-                            FileSelectDialog(
-                                initialDirectory = File(System.getProperty("user.home")),
-                                onDirectorySelected = {
-                                    selectedFile.value = it
-                                    showFileDialog.value = false
-                                },
-                                onDismiss = { showFileDialog.value = false },
-                                showOnlyDirectories = true
-                            )
-                        }
-                        LaunchedEffect(selectedFile.value) {
+                        )
+                    }
+                ) {
+                    Surface(modifier = Modifier.padding(16.dp)) {
+                        Column {
+                            Button(onClick = { showFileDialog.value = true }) {
+                                Text("Select File")
+                            }
                             selectedFile.value?.let {
-                                viewModel.selectNewDirectory(it)
+                                Text("Selected: ${it.name}")
                             }
-                        }
-                        // Show the message from the view model
-                        val message = viewModel.directoryMessage.value
-                        if (message.isNotEmpty()) {
-                            Text(message)
-                        }
-                        // Render the model if available
-                        val model = viewModel.modelState.value
-                        ModelRendering(model)
-                        if (showTypeDialog.value && model != null) {
-                            com.vandenbreemen.codespy.ui.SelectTypeDialog(
-                                model = model,
-                                onDismiss = { showTypeDialog.value = false }
-                            )
+                            if (showFileDialog.value) {
+                                FileSelectDialog(
+                                    initialDirectory = File(System.getProperty("user.home")),
+                                    onDirectorySelected = {
+                                        selectedFile.value = it
+                                        showFileDialog.value = false
+                                    },
+                                    onDismiss = { showFileDialog.value = false },
+                                    showOnlyDirectories = true
+                                )
+                            }
+                            LaunchedEffect(selectedFile.value) {
+                                selectedFile.value?.let {
+                                    viewModel.selectNewDirectory(it)
+                            }
+                            }
+                            // Show the message from the view model
+                            val message = viewModel.directoryMessage.value
+                            if (message.isNotEmpty()) {
+                                Text(message)
+                            }
+                            // Render the model if available
+                            val model = viewModel.modelState.value
+                            ModelRendering(model)
+                            if (showTypeDialog.value && model != null) {
+                                com.vandenbreemen.codespy.ui.SelectTypeDialog(
+                                    model = model,
+                                    onDismiss = { showTypeDialog.value = false }
+                                )
+                            }
                         }
                     }
                 }
