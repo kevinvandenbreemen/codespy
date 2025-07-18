@@ -30,6 +30,7 @@ import java.io.File
 import kotlinx.coroutines.launch
 import com.vandenbreemen.codespy.ui.FileSelectDialog
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
+import com.vandenbreemen.com.vandenbreemen.codespy.viewmodel.CodeSpyViewModel
 
 
 @Composable
@@ -37,7 +38,7 @@ import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 fun App() {
 
     //  Set up the view model here
-    val viewModel = Dependencies.main.codeSpyViewModel()
+    val viewModel: CodeSpyViewModel = Dependencies.main.codeSpyViewModel()
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
