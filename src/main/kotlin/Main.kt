@@ -72,8 +72,8 @@ fun App() {
                         }
                         if (showFileDialog.value) {
                             FileSelectDialog(
-                                directory = File(System.getProperty("user.home")),
-                                onFileSelected = {
+                                initialDirectory = File(System.getProperty("user.home")),
+                                onDirectorySelected = {
                                     selectedFile.value = it
                                     showFileDialog.value = false
                                 },
