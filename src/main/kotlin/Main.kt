@@ -18,6 +18,7 @@ import androidx.compose.material.DrawerValue
 import androidx.compose.material.rememberDrawerState
 import androidx.compose.material.ModalDrawer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -85,6 +86,16 @@ fun App() {
                                 onDismiss = { showFileDialog.value = false },
                                 showOnlyDirectories = true
                             )
+                        }
+                        LaunchedEffect(selectedFile.value) {
+                            selectedFile.value?.let {
+                                viewModel.selectNewDirectory(it)
+                            }
+                        }
+                        // Show the message from the view model
+                        val message = viewModel.directoryMessage.value
+                        if (message.isNotEmpty()) {
+                            Text(message)
                         }
                     }
                 }
