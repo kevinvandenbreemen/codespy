@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import com.vandenbreemen.codespy.ui.FileSelectDialog
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.viewmodel.CodeSpyViewModel
+import com.vandenbreemen.codespy.ui.ModelRendering
 
 
 @Composable
@@ -97,6 +98,9 @@ fun App() {
                         if (message.isNotEmpty()) {
                             Text(message)
                         }
+                        // Render the model if available
+                        val model = viewModel.modelState.value
+                        ModelRendering(model)
                     }
                 }
             }

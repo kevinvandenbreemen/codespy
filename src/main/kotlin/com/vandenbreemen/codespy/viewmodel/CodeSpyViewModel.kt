@@ -17,6 +17,8 @@ class CodeSpyViewModel(private val grucdInteractor: GrucdInteractor) {
     private var currentDirectory: File? = null
 
     private var model: Model? = null
+    private val _modelState = mutableStateOf<Model?>(null)
+    val modelState: State<Model?> = _modelState
 
     fun selectNewDirectory(path: File) {
         viewModelScope.launch {
@@ -31,7 +33,11 @@ class CodeSpyViewModel(private val grucdInteractor: GrucdInteractor) {
                 currentDirectory = path
 
                 //  Now build model
-                model = grucdInteractor.getModel(path)
+                val generatedModel = grucdInteractor.getModel(path)
+                model = generatedModel
+                _modelState.value = generatedModel
+            } else {
+                _modelState.value = null
             }
 
 
