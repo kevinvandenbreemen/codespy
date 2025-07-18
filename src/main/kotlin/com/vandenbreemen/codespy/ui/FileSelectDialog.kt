@@ -2,8 +2,11 @@ package com.vandenbreemen.codespy.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
@@ -26,7 +29,7 @@ fun FileSelectDialog(
     showOnlyDirectories: Boolean = false
 ) {
     val currentDirectory = remember { mutableStateOf(initialDirectory) }
-    val files = currentDirectory.value.listFiles()?.toList() ?: emptyList()
+    val files = currentDirectory.value.listFiles()?.toList()?.sortedBy { it.name.lowercase() } ?: emptyList()
     val filteredFiles = files.filter { if (showOnlyDirectories) it.isDirectory else true }
     val columns = 4
     val rows = if (filteredFiles.isNotEmpty()) (filteredFiles.size + columns - 1) / columns else 0
@@ -50,33 +53,27 @@ fun FileSelectDialog(
                             }.padding(4.dp))
                         }
                     }
-                    LazyRow {
-                        items(gridColumns) { columnFiles ->
-                            Column {
-                                columnFiles.forEach { file ->
-                                    if (file != null) {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            if (file.isDirectory) {
-                                                Icon(Icons.Filled.AccountBox, contentDescription = "Folder", modifier = Modifier.size(20.dp))
-                                                Text(
-                                                    file.name,
-                                                    modifier = Modifier.clickable {
-                                                        currentDirectory.value = file
-                                                    }.padding(4.dp)
-                                                )
-                                            } else {
-                                                Text(
-                                                    file.name,
-                                                    modifier = Modifier.padding(4.dp)
-                                                )
-                                            }
-                                        }
-                                    } else {
-                                        Spacer(modifier = Modifier.padding(4.dp))
-                                    }
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(columns),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(filteredFiles) { file ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (file.isDirectory) {
+                                    Icon(Icons.Filled.AccountBox, contentDescription = "Folder", modifier = Modifier.size(20.dp))
+                                    Text(
+                                        file.name,
+                                        modifier = Modifier.clickable {
+                                            currentDirectory.value = file
+                                        }.padding(4.dp)
+                                    )
+                                } else {
+                                    Text(
+                                        file.name,
+                                        modifier = Modifier.padding(4.dp)
+                                    )
                                 }
                             }
-                            Spacer(modifier = Modifier.width(16.dp))
                         }
                     }
                 }
