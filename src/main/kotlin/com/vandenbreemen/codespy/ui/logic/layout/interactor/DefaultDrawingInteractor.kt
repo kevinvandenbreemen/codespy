@@ -62,37 +62,47 @@ class DefaultDrawingInteractor : IDrawingInteractor {
                 color = Color.DarkGray
             )
 
-            // Measure and draw title
+            // Measure and draw title with safe positioning
             val titleResult = textMeasurer.measure(
                 text = positionedType.type.name,
                 style = titleStyle
             )
 
-            val titleX = rect.left + (rect.width - titleResult.size.width) / 2
-            val titleY = rect.top + 15.dp.toPx()
+            val titleX = maxOf(0f, rect.left + (rect.width - titleResult.size.width) / 2)
+            val titleY = maxOf(0f, rect.top + 15.dp.toPx())
 
-            drawText(
-                textMeasurer = textMeasurer,
-                text = positionedType.type.name,
-                style = titleStyle,
-                topLeft = Offset(titleX, titleY)
-            )
+            // Only draw title if it fits within bounds
+            if (titleX >= 0f && titleY >= 0f &&
+                titleX + titleResult.size.width <= size.width &&
+                titleY + titleResult.size.height <= size.height
+            ) {
 
-            // Draw package name
+                drawText(
+                    textLayoutResult = titleResult,
+                    topLeft = Offset(titleX, titleY)
+                )
+            }
+
+            // Measure and draw package name with safe positioning
             val packageResult = textMeasurer.measure(
                 text = positionedType.type.pkg,
                 style = packageStyle
             )
 
-            val packageX = rect.left + (rect.width - packageResult.size.width) / 2
-            val packageY = titleY + titleResult.size.height + 5.dp.toPx()
+            val packageX = maxOf(0f, rect.left + (rect.width - packageResult.size.width) / 2)
+            val packageY = maxOf(0f, titleY + titleResult.size.height + 5.dp.toPx())
 
-            drawText(
-                textMeasurer = textMeasurer,
-                text = positionedType.type.pkg,
-                style = packageStyle,
-                topLeft = Offset(packageX, packageY)
-            )
+            // Only draw package if it fits within bounds
+            if (packageX >= 0f && packageY >= 0f &&
+                packageX + packageResult.size.width <= size.width &&
+                packageY + packageResult.size.height <= size.height
+            ) {
+
+                drawText(
+                    textLayoutResult = packageResult,
+                    topLeft = Offset(packageX, packageY)
+                )
+            }
         }
     }
 
@@ -148,12 +158,31 @@ class DefaultDrawingInteractor : IDrawingInteractor {
                 color = Color.DarkGray
             )
 
-            drawText(
-                textMeasurer = textMeasurer,
+            // Measure text first to ensure proper positioning
+            val textResult = textMeasurer.measure(
                 text = relationType.name,
-                style = labelStyle,
-                topLeft = Offset(labelPosition.x - 20, labelPosition.y - 10)
+                style = labelStyle
             )
+
+            // Calculate safe position for the text label
+            val textWidth = textResult.size.width.toFloat()
+            val textHeight = textResult.size.height.toFloat()
+
+            val safeX = maxOf(0f, labelPosition.x - textWidth / 2)
+            val safeY = maxOf(0f, labelPosition.y - textHeight / 2)
+
+            // Only draw text if we have valid positive dimensions and safe positioning
+            if (textWidth > 0 && textHeight > 0 &&
+                safeX >= 0 && safeY >= 0 &&
+                safeX + textWidth <= size.width &&
+                safeY + textHeight <= size.height
+            ) {
+
+                drawText(
+                    textLayoutResult = textResult,
+                    topLeft = Offset(safeX, safeY)
+                )
+            }
         }
     }
 
