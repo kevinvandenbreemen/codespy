@@ -219,7 +219,7 @@ class DefaultDrawingInteractor : IDrawingInteractor {
             val diamondSize = 10.dp.toPx()
             val angle = atan2(end.y - start.y, end.x - start.x)
 
-            // Create filled diamond for composition
+            // Create open diamond for aggregation/encapsulation
             val diamondPath = Path().apply {
                 val centerX = start.x + diamondSize * cos(angle)
                 val centerY = start.y + diamondSize * sin(angle)
@@ -240,10 +240,15 @@ class DefaultDrawingInteractor : IDrawingInteractor {
                 close()
             }
 
-            // Draw filled black diamond
+            // Draw hollow diamond with white fill and black stroke
             drawPath(
                 path = diamondPath,
-                color = Color.Black
+                color = Color.White
+            )
+            drawPath(
+                path = diamondPath,
+                color = Color.Black,
+                style = Stroke(width = 2.dp.toPx())
             )
         }
     }
