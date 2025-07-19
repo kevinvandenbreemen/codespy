@@ -4,6 +4,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextMeasurer
@@ -105,19 +106,52 @@ class DefaultDrawingInteractor : IDrawingInteractor {
             val end = positionedRelation.endPosition
             val relationType = positionedRelation.relation.type
 
-            // Draw the main line
-            drawLine(
-                color = Color.Blue,
-                start = start,
-                end = end,
-                strokeWidth = 2.dp.toPx()
-            )
-
-            // Draw arrowhead based on relation type
+            // Draw the main line based on relation type
             when (relationType) {
-                RelationType.subclass -> drawInheritanceArrow(this, start, end)
-                RelationType.encapsulates -> drawCompositionArrow(this, start, end)
-                else -> drawSimpleArrow(this, start, end)
+                RelationType.subclass -> {
+                    // Solid line for inheritance
+                    drawLine(
+                        color = Color.Black,
+                        start = start,
+                        end = end,
+                        strokeWidth = 2.dp.toPx()
+                    )
+                    drawInheritanceArrow(this, start, end)
+                }
+
+                RelationType.encapsulates -> {
+                    // Solid line for composition
+                    drawLine(
+                        color = Color.Black,
+                        start = start,
+                        end = end,
+                        strokeWidth = 2.dp.toPx()
+                    )
+                    drawCompositionArrow(this, start, end)
+                }
+
+                RelationType.implementation -> {
+                    // Dashed line for implementation
+                    drawLine(
+                        color = Color.Black,
+                        start = start,
+                        end = end,
+                        strokeWidth = 2.dp.toPx(),
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f))
+                    )
+                    drawImplementationArrow(this, start, end)
+                }
+
+                else -> {
+                    // Default solid line
+                    drawLine(
+                        color = Color.Black,
+                        start = start,
+                        end = end,
+                        strokeWidth = 2.dp.toPx()
+                    )
+                    drawSimpleArrow(this, start, end)
+                }
             }
 
             // Draw relation type label
@@ -128,7 +162,7 @@ class DefaultDrawingInteractor : IDrawingInteractor {
 
             val labelStyle = TextStyle(
                 fontSize = 8.sp,
-                color = Color.Blue
+                color = Color.DarkGray
             )
 
             drawText(
@@ -146,9 +180,10 @@ class DefaultDrawingInteractor : IDrawingInteractor {
         end: Offset
     ) {
         with(drawScope) {
-            val arrowSize = 10.dp.toPx()
+            val arrowSize = 12.dp.toPx()
             val angle = atan2(end.y - start.y, end.x - start.x)
 
+            // Draw open triangle (hollow arrowhead) for inheritance
             val arrowPath = Path().apply {
                 moveTo(end.x, end.y)
                 lineTo(
@@ -162,9 +197,14 @@ class DefaultDrawingInteractor : IDrawingInteractor {
                 close()
             }
 
+            // Draw hollow triangle with white fill and black stroke
             drawPath(
                 path = arrowPath,
-                color = Color.Blue,
+                color = Color.White
+            )
+            drawPath(
+                path = arrowPath,
+                color = Color.Black,
                 style = Stroke(width = 2.dp.toPx())
             )
         }
@@ -176,32 +216,71 @@ class DefaultDrawingInteractor : IDrawingInteractor {
         end: Offset
     ) {
         with(drawScope) {
-            val arrowSize = 8.dp.toPx()
+            val diamondSize = 10.dp.toPx()
             val angle = atan2(end.y - start.y, end.x - start.x)
 
+            // Create filled diamond for composition
             val diamondPath = Path().apply {
-                val tipX = end.x - arrowSize * cos(angle)
-                val tipY = end.y - arrowSize * sin(angle)
+                val centerX = start.x + diamondSize * cos(angle)
+                val centerY = start.y + diamondSize * sin(angle)
 
-                moveTo(end.x, end.y)
+                moveTo(start.x, start.y)
                 lineTo(
-                    tipX - arrowSize / 2 * cos(angle + PI / 2).toFloat(),
-                    tipY - arrowSize / 2 * sin(angle + PI / 2).toFloat()
+                    centerX - diamondSize / 2 * cos(angle + PI / 2).toFloat(),
+                    centerY - diamondSize / 2 * sin(angle + PI / 2).toFloat()
                 )
                 lineTo(
-                    end.x - 2 * arrowSize * cos(angle),
-                    end.y - 2 * arrowSize * sin(angle)
+                    start.x + 2 * diamondSize * cos(angle),
+                    start.y + 2 * diamondSize * sin(angle)
                 )
                 lineTo(
-                    tipX + arrowSize / 2 * cos(angle + PI / 2).toFloat(),
-                    tipY + arrowSize / 2 * sin(angle + PI / 2).toFloat()
+                    centerX + diamondSize / 2 * cos(angle + PI / 2).toFloat(),
+                    centerY + diamondSize / 2 * sin(angle + PI / 2).toFloat()
                 )
                 close()
             }
 
+            // Draw filled black diamond
             drawPath(
                 path = diamondPath,
-                color = Color.Blue
+                color = Color.Black
+            )
+        }
+    }
+
+    // Add new method for implementation arrows
+    override fun drawImplementationArrow(
+        drawScope: DrawScope,
+        start: Offset,
+        end: Offset
+    ) {
+        with(drawScope) {
+            val arrowSize = 12.dp.toPx()
+            val angle = atan2(end.y - start.y, end.x - start.x)
+
+            // Draw open triangle (hollow arrowhead) for implementation - same as inheritance
+            val arrowPath = Path().apply {
+                moveTo(end.x, end.y)
+                lineTo(
+                    end.x - arrowSize * cos(angle - PI / 6).toFloat(),
+                    end.y - arrowSize * sin(angle - PI / 6).toFloat()
+                )
+                lineTo(
+                    end.x - arrowSize * cos(angle + PI / 6).toFloat(),
+                    end.y - arrowSize * sin(angle + PI / 6).toFloat()
+                )
+                close()
+            }
+
+            // Draw hollow triangle with white fill and black stroke
+            drawPath(
+                path = arrowPath,
+                color = Color.White
+            )
+            drawPath(
+                path = arrowPath,
+                color = Color.Black,
+                style = Stroke(width = 2.dp.toPx())
             )
         }
     }
@@ -215,8 +294,9 @@ class DefaultDrawingInteractor : IDrawingInteractor {
             val arrowSize = 10.dp.toPx()
             val angle = atan2(end.y - start.y, end.x - start.x)
 
+            // Draw simple open arrowhead
             drawLine(
-                color = Color.Blue,
+                color = Color.Black,
                 start = end,
                 end = Offset(
                     end.x - arrowSize * cos(angle - PI / 6).toFloat(),
@@ -226,7 +306,7 @@ class DefaultDrawingInteractor : IDrawingInteractor {
             )
 
             drawLine(
-                color = Color.Blue,
+                color = Color.Black,
                 start = end,
                 end = Offset(
                     end.x - arrowSize * cos(angle + PI / 6).toFloat(),

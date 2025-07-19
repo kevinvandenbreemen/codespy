@@ -31,6 +31,12 @@ interface IDrawingInteractor {
         end: Offset
     )
 
+    fun drawImplementationArrow(
+        drawScope: DrawScope,
+        start: Offset,
+        end: Offset
+    )
+
     fun drawSimpleArrow(
         drawScope: DrawScope,
         start: Offset,
