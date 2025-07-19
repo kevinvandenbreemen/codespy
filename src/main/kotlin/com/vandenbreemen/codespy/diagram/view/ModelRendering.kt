@@ -19,6 +19,7 @@ import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.view.renderlogic.IDrawingInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.viewmodel.ModelRenderingViewModel
 import com.vandenbreemen.grucd.model.Type
+import kotlinx.coroutines.launch
 
 @Composable
 fun ModelRendering(
@@ -28,7 +29,47 @@ fun ModelRendering(
     onTypeClick: (Type) -> Unit = {} // Add callback for type clicks
 ) {
     val layoutModel by modelRenderingViewModel.modelState
+    val focusedType by modelRenderingViewModel.focusedType
+    val scrollToPosition by modelRenderingViewModel.scrollToPosition
     val textMeasurer = rememberTextMeasurer()
+
+    // Create scroll states for horizontal and vertical scrolling
+    val horizontalScrollState = rememberScrollState()
+    val verticalScrollState = rememberScrollState()
+
+    // Handle auto-scrolling when a type is focused
+    LaunchedEffect(scrollToPosition) {
+        scrollToPosition?.let { (targetX, targetY) ->
+            println("Auto-scrolling to position: ($targetX, $targetY)")
+
+            // Calculate the scroll offsets to center the target position
+            // Get the actual viewport size dynamically
+            val viewportWidth = 800f // You might want to make this dynamic
+            val viewportHeight = 600f // You might want to make this dynamic
+
+            val horizontalOffset = (targetX - viewportWidth / 2).coerceAtLeast(0f)
+            val verticalOffset = (targetY - viewportHeight / 2).coerceAtLeast(0f)
+
+            println("Calculated scroll offsets: horizontal=$horizontalOffset, vertical=$verticalOffset")
+
+            // Animate to the calculated scroll positions
+            launch {
+                horizontalScrollState.animateScrollTo(horizontalOffset.toInt())
+            }
+            launch {
+                verticalScrollState.animateScrollTo(verticalOffset.toInt())
+            }
+        }
+    }
+
+    // Clear focus after a delay to allow scrolling to complete
+    LaunchedEffect(focusedType) {
+        focusedType?.let {
+            // Clear the scroll position after a delay to allow scrolling animation to complete
+            kotlinx.coroutines.delay(1000) // 1 second delay
+            modelRenderingViewModel.clearFocus()
+        }
+    }
 
     // Trigger layout computation when the composable is first composed
     LaunchedEffect(modelRenderingViewModel) {
@@ -44,8 +85,8 @@ fun ModelRendering(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .horizontalScroll(rememberScrollState())
-                .verticalScroll(rememberScrollState())
+                .horizontalScroll(horizontalScrollState)
+                .verticalScroll(verticalScrollState)
         ) {
             Canvas(
                 modifier = Modifier
@@ -79,7 +120,9 @@ fun ModelRendering(
 
                 // Draw type boxes on top
                 layoutModel.positionedTypes.forEach { positionedType ->
-                    drawingInteractor.drawTypeBox(this, positionedType, textMeasurer)
+                    // Highlight focused type
+                    val isHighlighted = positionedType.type == focusedType
+                    drawingInteractor.drawTypeBox(this, positionedType, textMeasurer, isHighlighted)
                 }
             }
         }

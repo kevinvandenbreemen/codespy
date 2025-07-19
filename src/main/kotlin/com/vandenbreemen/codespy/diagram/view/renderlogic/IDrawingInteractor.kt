@@ -10,7 +10,8 @@ interface IDrawingInteractor {
     fun drawTypeBox(
         drawScope: DrawScope,
         positionedType: PositionedType,
-        textMeasurer: TextMeasurer
+        textMeasurer: TextMeasurer,
+        isHighlighted: Boolean = false
     )
 
     fun drawRelation(

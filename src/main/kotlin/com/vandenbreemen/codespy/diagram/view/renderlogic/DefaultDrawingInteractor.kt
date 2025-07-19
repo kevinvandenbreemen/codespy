@@ -27,7 +27,8 @@ class DefaultDrawingInteractor : IDrawingInteractor {
     override fun drawTypeBox(
         drawScope: DrawScope,
         positionedType: PositionedType,
-        textMeasurer: TextMeasurer
+        textMeasurer: TextMeasurer,
+        isHighlighted: Boolean
     ) {
         with(drawScope) {
             val rect = Rect(
@@ -35,19 +36,25 @@ class DefaultDrawingInteractor : IDrawingInteractor {
                 size = positionedType.size
             )
 
+            // Choose colors based on highlight state
+            val backgroundColor =
+                if (isHighlighted) Color(0xFFE3F2FD) else Color.LightGray // Light blue for highlighted
+            val borderColor = if (isHighlighted) Color(0xFF1976D2) else Color.Black // Blue border for highlighted
+            val borderWidth = if (isHighlighted) 3.dp.toPx() else 2.dp.toPx() // Thicker border for highlighted
+
             // Draw box background
             drawRect(
-                color = Color.LightGray,
+                color = backgroundColor,
                 topLeft = rect.topLeft,
                 size = rect.size
             )
 
             // Draw box border
             drawRect(
-                color = Color.Black,
+                color = borderColor,
                 topLeft = rect.topLeft,
                 size = rect.size,
-                style = Stroke(width = 2.dp.toPx())
+                style = Stroke(width = borderWidth)
             )
 
             // Smaller font sizes for better readability
