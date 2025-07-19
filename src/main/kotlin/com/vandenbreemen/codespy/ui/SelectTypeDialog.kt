@@ -14,6 +14,10 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.SelectTypeDialogViewModel
 
@@ -53,7 +57,12 @@ fun SelectTypeDialog(
                 ) {
                     items(filteredTypes.size) { idx ->
                         val type = filteredTypes[idx]
-                        val displayText = "${type.pkg}.${type.name}"
+                        val displayText = buildAnnotatedString {
+                            append("${type.pkg}.")
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(type.name)
+                            }
+                        }
                         Text(
                             displayText,
                             modifier = Modifier
