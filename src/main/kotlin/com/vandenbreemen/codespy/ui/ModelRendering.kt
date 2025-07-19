@@ -1,9 +1,10 @@
 package com.vandenbreemen.codespy.ui
 
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,21 +37,27 @@ fun ModelRendering(
             .padding(8.dp),
         elevation = 4.dp
     ) {
-        Canvas(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .horizontalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState())
         ) {
-            // Draw relationships first (so they appear behind the boxes)
-            layoutModel.positionedRelations.forEach { relation ->
-                drawingInteractor.drawRelation(this, relation, textMeasurer)
-            }
+            Canvas(
+                modifier = Modifier
+                    .size(2000.dp, 2000.dp) // Set a large fixed size for the canvas
+                    .background(Color.White)
+            ) {
+                // Draw relationships first (so they appear behind the boxes)
+                layoutModel.positionedRelations.forEach { relation ->
+                    drawingInteractor.drawRelation(this, relation, textMeasurer)
+                }
 
-            // Draw type boxes on top
-            layoutModel.positionedTypes.forEach { positionedType ->
-                drawingInteractor.drawTypeBox(this, positionedType, textMeasurer)
+                // Draw type boxes on top
+                layoutModel.positionedTypes.forEach { positionedType ->
+                    drawingInteractor.drawTypeBox(this, positionedType, textMeasurer)
+                }
             }
         }
     }
 }
-
