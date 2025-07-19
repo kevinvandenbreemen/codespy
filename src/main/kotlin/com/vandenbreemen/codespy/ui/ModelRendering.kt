@@ -76,13 +76,78 @@ fun ModelRendering(model: Model?) {
                 val boxWidth = 200f
                 val boxHeight = 60f
                 val boxSpacing = 40f
+                val boxLeft = 40f
+                // Calculate box positions
+                val boxPositions = sortedTypes.mapIndexed { index, type ->
+                    val y = index * (boxHeight + boxSpacing) + 40f
+                    val name = getTypeName(type)
+                    name to Offset(boxLeft, y)
+                }.toMap()
+                // Draw boxes
                 sortedTypes.forEachIndexed { index, type ->
                     val y = index * (boxHeight + boxSpacing) + 40f
                     drawRect(
                         color = Color(0xFF90CAF9),
-                        topLeft = Offset(40f, y),
+                        topLeft = Offset(boxLeft, y),
                         size = Size(boxWidth, boxHeight)
                     )
+                }
+                // Draw arrows for subclass relations
+                relations.forEach { rel ->
+                    val relType = try {
+                        rel.javaClass.getDeclaredField("type").apply { isAccessible = true }.get(rel)
+                    } catch (e: Exception) {
+                        null
+                    }
+                    if (relType?.toString() == "subclass") {
+                        val fromType = try {
+                            rel.javaClass.getDeclaredField("from").apply { isAccessible = true }.get(rel)
+                        } catch (e: Exception) {
+                            null
+                        }
+                        val toType = try {
+                            rel.javaClass.getDeclaredField("to").apply { isAccessible = true }.get(rel)
+                        } catch (e: Exception) {
+                            null
+                        }
+                        val fromName = getTypeName(fromType)
+                        val toName = getTypeName(toType)
+                        val fromPos = boxPositions[fromName]
+                        val toPos = boxPositions[toName]
+                        if (fromPos != null && toPos != null) {
+                            // Arrow from right side of from box to top side of to box
+                            val start = Offset(fromPos.x + boxWidth, fromPos.y + boxHeight / 2)
+                            val end = Offset(toPos.x + boxWidth / 2, toPos.y)
+                            // Calculate arrowhead base
+                            val arrowSize = 12f
+                            val angle = Math.atan2((end.y - start.y).toDouble(), (end.x - start.x).toDouble())
+                            val baseX = (end.x - arrowSize * Math.cos(angle)).toFloat()
+                            val baseY = (end.y - arrowSize * Math.sin(angle)).toFloat()
+                            val base = Offset(baseX, baseY)
+                            // Draw line up to base of arrowhead (make thinner)
+                            drawLine(
+                                color = Color.Black,
+                                start = start,
+                                end = base,
+                                strokeWidth = 2f // thinner line
+                            )
+                            // Draw empty arrowhead (outline only)
+                            val arrowAngle1 = angle - Math.PI / 8
+                            val arrowAngle2 = angle + Math.PI / 8
+                            val arrowP1 = Offset(
+                                (end.x - arrowSize * Math.cos(arrowAngle1)).toFloat(),
+                                (end.y - arrowSize * Math.sin(arrowAngle1)).toFloat()
+                            )
+                            val arrowP2 = Offset(
+                                (end.x - arrowSize * Math.cos(arrowAngle2)).toFloat(),
+                                (end.y - arrowSize * Math.sin(arrowAngle2)).toFloat()
+                            )
+                            // Draw outline triangle for arrowhead
+                            drawLine(color = Color.Black, start = end, end = arrowP1, strokeWidth = 2f)
+                            drawLine(color = Color.Black, start = end, end = arrowP2, strokeWidth = 2f)
+                            drawLine(color = Color.Black, start = arrowP1, end = arrowP2, strokeWidth = 2f)
+                        }
+                    }
                 }
             }
             // Draw labels on top of boxes
