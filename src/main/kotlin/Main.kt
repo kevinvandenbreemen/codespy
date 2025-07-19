@@ -15,6 +15,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.vandenbreemen.codespy.ui.FileSelectDialog
 import com.vandenbreemen.codespy.ui.ModelRendering
+import com.vandenbreemen.codespy.ui.SelectTypeDialog
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.SelectTypeDialogViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.viewmodel.CodeSpyViewModel
@@ -119,7 +120,7 @@ fun App() {
 
                             val model = viewModel.modelState.value
                             if (showTypeDialog.value && model != null) {
-                                com.vandenbreemen.codespy.ui.SelectTypeDialog(
+                                SelectTypeDialog(
                                     viewModel = object : SelectTypeDialogViewModel(model) {
                                         override fun onTypeSelected(type: Type) {
 
