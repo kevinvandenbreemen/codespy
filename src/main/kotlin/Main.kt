@@ -114,7 +114,7 @@ fun App() {
                             // Render the model if available
                             val model = viewModel.modelState.value
                             model?.let {
-                                ModelRendering(TypeLayoutLogicViewModel(model))
+                                ModelRendering(typeLayoutLogicViewModel = TypeLayoutLogicViewModel(model))
                             } ?: run {
                                 Text("No model loaded. Please select a directory with a valid model.")
                             }

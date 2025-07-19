@@ -32,7 +32,10 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
-fun ModelRendering(typeLayoutLogicViewModel: TypeLayoutLogicViewModel) {
+fun ModelRendering(
+    modifier: Modifier = Modifier,
+    typeLayoutLogicViewModel: TypeLayoutLogicViewModel
+) {
     val layoutModel by typeLayoutLogicViewModel.modelState
     val textMeasurer = rememberTextMeasurer()
 
@@ -42,7 +45,7 @@ fun ModelRendering(typeLayoutLogicViewModel: TypeLayoutLogicViewModel) {
     }
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(8.dp),
         elevation = 4.dp

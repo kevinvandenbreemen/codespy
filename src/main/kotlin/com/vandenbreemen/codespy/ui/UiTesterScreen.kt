@@ -51,7 +51,10 @@ fun UiTesterScreen(onBack: () -> Unit) {
             Text("Back")
         }
         Text("ModelRendering showcase:", modifier = Modifier.padding(bottom = 8.dp))
-        ModelRendering(TypeLayoutLogicViewModel(fakeModel))
+        ModelRendering(
+            modifier = Modifier.weight(0.9f),
+            TypeLayoutLogicViewModel(fakeModel)
+        )
         Button(onClick = { showTypeDialog = true }, modifier = Modifier.padding(vertical = 16.dp)) {
             Text("Show SelectTypeDialog")
         }
