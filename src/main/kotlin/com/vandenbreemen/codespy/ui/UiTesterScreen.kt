@@ -28,7 +28,8 @@ fun UiTesterScreen(onBack: () -> Unit) {
             Type("Category", "com.shop"),
             Type("Review", "com.example"),
             Type("Shipment", "com.shop"),
-            Type("Payment", "com.example")
+            Type("Payment", "com.example"),
+            Type("Document", "com.shop.document"),
         )
         Model(fakeTypes).apply {
             this.addRelation(
@@ -41,6 +42,7 @@ fun UiTesterScreen(onBack: () -> Unit) {
                     fakeTypes[1], fakeTypes[2], RelationType.encapsulates
                 )
             )
+            this.addRelation(TypeRelation(fakeTypes[9], fakeTypes[10], RelationType.implementation))
         }
     }
 
