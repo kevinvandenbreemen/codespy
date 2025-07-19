@@ -58,7 +58,10 @@ fun SelectTypeDialog(
                             displayText,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { /* Handle type selection here */ }
+                                .clickable {
+                                    viewModel.onTypeSelected(type)
+                                    onDismiss()
+                                }
                                 .padding(8.dp)
                         )
                     }

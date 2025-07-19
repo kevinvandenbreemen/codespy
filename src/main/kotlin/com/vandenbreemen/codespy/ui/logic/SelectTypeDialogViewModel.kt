@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.vandenbreemen.grucd.model.Model
 import com.vandenbreemen.grucd.model.Type
 
-class SelectTypeDialogViewModel(private val model: Model) {
+abstract class SelectTypeDialogViewModel(private val model: Model) {
 
 
     //  State with the list of visible Types
@@ -20,6 +20,12 @@ class SelectTypeDialogViewModel(private val model: Model) {
 
         _visibleTypes.value = matchingTypes
 
+    }
+
+    open fun onTypeSelected(type: Type) {
+        //  Handle the type selection logic here
+        //  This could be a callback to the parent composable or some other action
+        println("Type selected: ${type.name} in package ${type.pkg}")
     }
 
 }

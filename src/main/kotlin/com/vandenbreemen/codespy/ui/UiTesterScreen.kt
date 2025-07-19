@@ -56,7 +56,13 @@ fun UiTesterScreen(onBack: () -> Unit) {
         }
         if (showTypeDialog) {
             SelectTypeDialog(
-                viewModel = SelectTypeDialogViewModel(fakeModel),
+                viewModel = object : SelectTypeDialogViewModel(fakeModel) {
+                    override fun onTypeSelected(type: Type) {
+                        // Handle type selection
+                        println("Selected type: ${type.name} from package ${type.pkg}")
+                        showTypeDialog = false
+                    }
+                },
                 onDismiss = { showTypeDialog = false }
             )
         }

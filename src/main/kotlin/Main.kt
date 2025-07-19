@@ -18,6 +18,7 @@ import com.vandenbreemen.codespy.ui.ModelRendering
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.SelectTypeDialogViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.viewmodel.CodeSpyViewModel
+import com.vandenbreemen.grucd.model.Type
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -114,7 +115,12 @@ fun App() {
                             ModelRendering(model)
                             if (showTypeDialog.value && model != null) {
                                 com.vandenbreemen.codespy.ui.SelectTypeDialog(
-                                    viewModel = SelectTypeDialogViewModel(model),
+                                    viewModel = object : SelectTypeDialogViewModel(model) {
+                                        override fun onTypeSelected(type: Type) {
+                                            // XXX  Handle type selection here
+                                            showTypeDialog.value = false
+                                        }
+                                    },
                                     onDismiss = { showTypeDialog.value = false }
                                 )
                             }
