@@ -1,10 +1,10 @@
-package com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.interactor
+package com.vandenbreemen.com.vandenbreemen.codespy.diagram.view.renderlogic
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.TextMeasurer
-import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.PositionedRelation
-import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.PositionedType
+import com.vandenbreemen.com.vandenbreemen.codespy.diagram.model.PositionedRelation
+import com.vandenbreemen.com.vandenbreemen.codespy.diagram.model.PositionedType
 
 interface IDrawingInteractor {
     fun drawTypeBox(

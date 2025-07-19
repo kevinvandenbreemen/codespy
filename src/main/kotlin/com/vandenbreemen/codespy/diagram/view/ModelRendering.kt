@@ -16,8 +16,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
+import com.vandenbreemen.com.vandenbreemen.codespy.diagram.view.renderlogic.IDrawingInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.TypeLayoutLogicViewModel
-import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.interactor.IDrawingInteractor
 import com.vandenbreemen.grucd.model.Type
 
 @Composable

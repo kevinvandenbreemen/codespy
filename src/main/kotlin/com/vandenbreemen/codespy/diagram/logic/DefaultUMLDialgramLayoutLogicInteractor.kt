@@ -3,9 +3,9 @@ package com.vandenbreemen.com.vandenbreemen.codespy.diagram.logic
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.PositionedRelation
-import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.PositionedType
-import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.UMLDiagramLayoutModel
+import com.vandenbreemen.com.vandenbreemen.codespy.diagram.model.PositionedRelation
+import com.vandenbreemen.com.vandenbreemen.codespy.diagram.model.PositionedType
+import com.vandenbreemen.com.vandenbreemen.codespy.diagram.model.UMLDiagramLayoutModel
 import com.vandenbreemen.grucd.model.Model
 import com.vandenbreemen.grucd.model.Type
 import kotlin.math.*

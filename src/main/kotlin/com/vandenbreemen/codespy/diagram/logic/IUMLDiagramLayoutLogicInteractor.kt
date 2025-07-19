@@ -1,6 +1,6 @@
 package com.vandenbreemen.com.vandenbreemen.codespy.diagram.logic
 
-import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.UMLDiagramLayoutModel
+import com.vandenbreemen.com.vandenbreemen.codespy.diagram.model.UMLDiagramLayoutModel
 import com.vandenbreemen.grucd.model.Model
 import com.vandenbreemen.grucd.model.Type
 

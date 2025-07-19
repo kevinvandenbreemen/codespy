@@ -1,4 +1,4 @@
-package com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout
+package com.vandenbreemen.com.vandenbreemen.codespy.diagram.model
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
