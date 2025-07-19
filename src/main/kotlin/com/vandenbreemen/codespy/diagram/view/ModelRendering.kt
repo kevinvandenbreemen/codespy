@@ -17,22 +17,22 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.view.renderlogic.IDrawingInteractor
-import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.TypeLayoutLogicViewModel
+import com.vandenbreemen.com.vandenbreemen.codespy.diagram.viewmodel.ModelRenderingViewModel
 import com.vandenbreemen.grucd.model.Type
 
 @Composable
 fun ModelRendering(
     modifier: Modifier = Modifier,
-    typeLayoutLogicViewModel: TypeLayoutLogicViewModel,
+    modelRenderingViewModel: ModelRenderingViewModel,
     drawingInteractor: IDrawingInteractor = Dependencies.main.drawingInteractor(),
     onTypeClick: (Type) -> Unit = {} // Add callback for type clicks
 ) {
-    val layoutModel by typeLayoutLogicViewModel.modelState
+    val layoutModel by modelRenderingViewModel.modelState
     val textMeasurer = rememberTextMeasurer()
 
     // Trigger layout computation when the composable is first composed
-    LaunchedEffect(typeLayoutLogicViewModel) {
-        typeLayoutLogicViewModel.computeLayoutForModel()
+    LaunchedEffect(modelRenderingViewModel) {
+        modelRenderingViewModel.computeLayoutForModel()
     }
 
     Card(

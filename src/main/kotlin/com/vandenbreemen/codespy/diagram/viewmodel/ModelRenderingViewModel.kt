@@ -1,4 +1,4 @@
-package com.vandenbreemen.com.vandenbreemen.codespy.ui.logic
+package com.vandenbreemen.com.vandenbreemen.codespy.diagram.viewmodel
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -11,9 +11,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class TypeLayoutLogicViewModel(private val model: Model) {
+class ModelRenderingViewModel(private val model: Model) {
 
-    private val layoutInteractor: IUMLDiagramLayoutLogicInteractor = Dependencies.main.layoutInteractor()
+    private val layoutInteractor: IUMLDiagramLayoutLogicInteractor = Dependencies.Companion.main.layoutInteractor()
 
     private val _layoutModelState: MutableState<UMLDiagramLayoutModel> = mutableStateOf(UMLDiagramLayoutModel())
     val modelState: State<UMLDiagramLayoutModel> = _layoutModelState

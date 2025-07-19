@@ -16,8 +16,8 @@ import androidx.compose.ui.window.rememberWindowState
 import com.vandenbreemen.codespy.ui.FileSelectDialog
 import com.vandenbreemen.codespy.ui.ModelRendering
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
+import com.vandenbreemen.com.vandenbreemen.codespy.diagram.viewmodel.ModelRenderingViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.SelectTypeDialogViewModel
-import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.TypeLayoutLogicViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.viewmodel.CodeSpyViewModel
 import com.vandenbreemen.grucd.model.Type
 import kotlinx.coroutines.launch
@@ -114,7 +114,7 @@ fun App() {
                             // Render the model if available
                             val model = viewModel.modelState.value
                             model?.let {
-                                ModelRendering(typeLayoutLogicViewModel = TypeLayoutLogicViewModel(model))
+                                ModelRendering(modelRenderingViewModel = ModelRenderingViewModel(model))
                             } ?: run {
                                 Text("No model loaded. Please select a directory with a valid model.")
                             }
