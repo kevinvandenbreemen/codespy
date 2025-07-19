@@ -97,7 +97,11 @@ fun UiTesterScreen(onBack: () -> Unit) {
         Text("ModelRendering showcase:", modifier = Modifier.padding(bottom = 8.dp))
         ModelRendering(
             modifier = Modifier.weight(0.9f),
-            TypeLayoutLogicViewModel(fakeModel)
+            TypeLayoutLogicViewModel(fakeModel),
+            onTypeClick = { type ->
+                // Handle type click
+                println("Clicked on type: ${type.name} from package ${type.pkg}")
+            }
         )
         Button(onClick = { showTypeDialog = true }, modifier = Modifier.padding(vertical = 16.dp)) {
             Text("Show SelectTypeDialog")

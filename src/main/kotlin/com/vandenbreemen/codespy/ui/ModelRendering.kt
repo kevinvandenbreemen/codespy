@@ -1,6 +1,7 @@
 package com.vandenbreemen.codespy.ui
 
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,17 +12,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.TypeLayoutLogicViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.interactor.IDrawingInteractor
+import com.vandenbreemen.grucd.model.Type
 
 @Composable
 fun ModelRendering(
     modifier: Modifier = Modifier,
     typeLayoutLogicViewModel: TypeLayoutLogicViewModel,
-    drawingInteractor: IDrawingInteractor = Dependencies.main.drawingInteractor()
+    drawingInteractor: IDrawingInteractor = Dependencies.main.drawingInteractor(),
+    onTypeClick: (Type) -> Unit = {} // Add callback for type clicks
 ) {
     val layoutModel by typeLayoutLogicViewModel.modelState
     val textMeasurer = rememberTextMeasurer()
@@ -50,6 +54,23 @@ fun ModelRendering(
                         height = maxOf(600.dp, layoutModel.height.dp)
                     )
                     .background(Color.White)
+                    .pointerInput(layoutModel) {
+                        detectTapGestures { offset ->
+                            // Find the clicked type box
+                            val clickedType = layoutModel.positionedTypes.find { positionedType ->
+                                val rect = androidx.compose.ui.geometry.Rect(
+                                    offset = positionedType.position,
+                                    size = positionedType.size
+                                )
+                                rect.contains(offset)
+                            }
+
+                            // Trigger callback if a type was clicked
+                            clickedType?.let { positionedType ->
+                                onTypeClick(positionedType.type)
+                            }
+                        }
+                    }
             ) {
                 // Draw relationships first (so they appear behind the boxes)
                 layoutModel.positionedRelations.forEach { relation ->
