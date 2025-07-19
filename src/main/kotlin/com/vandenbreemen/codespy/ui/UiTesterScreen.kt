@@ -7,6 +7,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.SelectTypeDialogViewModel
 import com.vandenbreemen.grucd.model.Model
 import com.vandenbreemen.grucd.model.RelationType
 import com.vandenbreemen.grucd.model.Type
@@ -49,7 +50,7 @@ fun UiTesterScreen(onBack: () -> Unit) {
         }
         if (showTypeDialog) {
             SelectTypeDialog(
-                model = fakeModel,
+                viewModel = SelectTypeDialogViewModel(fakeModel),
                 onDismiss = { showTypeDialog = false }
             )
         }
