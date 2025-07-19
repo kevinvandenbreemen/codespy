@@ -30,6 +30,11 @@ dependencies {
 
     val grucdVersion = "1.0.7.1100"
     implementation("com.github.kevinvandenbreemen:grucd:$grucdVersion")
+
+    //  ELK for layout modelling using eclipse toolkit
+    implementation("org.eclipse.elk:org.eclipse.elk.core:0.8.1")
+    implementation("org.eclipse.elk:org.eclipse.elk.graph:0.8.1")
+    implementation("org.eclipse.elk:org.eclipse.elk.alg.layered:0.8.1")
 }
 
 tasks.test {
