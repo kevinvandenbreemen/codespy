@@ -20,15 +20,28 @@ class DefaultUMLDialgramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor
 
         val layoutModel = UMLDiagramLayoutModel()
 
-        // Simple grid layout for positioning types
-        val gridColumns = 3
-        val typeSpacing = 200f
-        val verticalSpacing = 150f
+        if (types.isEmpty()) {
+            return layoutModel
+        }
 
-        // Position types in a grid
+        // Calculate optimal grid layout based on number of types
+        val typeCount = types.size
+        val optimalColumns = calculateOptimalColumns(typeCount)
+
+        // Dynamic spacing based on content and relationships
+        val baseTypeSpacing = 200f
+        val baseVerticalSpacing = 150f
+        val relationshipPadding = 50f // Extra space for relationship routing
+
+        val typeSpacing =
+            baseTypeSpacing + if (overarchingSoftwareSystemModel.relations.isNotEmpty()) relationshipPadding else 0f
+        val verticalSpacing =
+            baseVerticalSpacing + if (overarchingSoftwareSystemModel.relations.isNotEmpty()) relationshipPadding else 0f
+
+        // Position types in an optimized grid
         types.forEachIndexed { index, type ->
-            val column = index % gridColumns
-            val row = index / gridColumns
+            val column = index % optimalColumns
+            val row = index / optimalColumns
             val position = Offset(
                 x = column * typeSpacing + 50f,
                 y = row * verticalSpacing + 50f
@@ -47,7 +60,23 @@ class DefaultUMLDialgramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor
             }
         }
 
+        // Force final dimension calculation after all elements are added
+        layoutModel.recalculateDimensions()
+
         return layoutModel
+    }
+
+    /**
+     * Calculate optimal number of columns based on type count for better layout
+     */
+    private fun calculateOptimalColumns(typeCount: Int): Int {
+        return when {
+            typeCount <= 4 -> 2
+            typeCount <= 9 -> 3
+            typeCount <= 16 -> 4
+            typeCount <= 25 -> 5
+            else -> kotlin.math.ceil(kotlin.math.sqrt(typeCount.toDouble())).toInt()
+        }
     }
 
     /**

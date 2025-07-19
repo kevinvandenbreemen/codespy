@@ -45,7 +45,10 @@ fun ModelRendering(
         ) {
             Canvas(
                 modifier = Modifier
-                    .size(2000.dp, 2000.dp) // Set a large fixed size for the canvas
+                    .size(
+                        width = maxOf(800.dp, layoutModel.width.dp),
+                        height = maxOf(600.dp, layoutModel.height.dp)
+                    )
                     .background(Color.White)
             ) {
                 // Draw relationships first (so they appear behind the boxes)
