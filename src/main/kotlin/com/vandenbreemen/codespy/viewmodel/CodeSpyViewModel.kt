@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.viewmodel.ModelRenderingViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.interactor.GrucdInteractor
 import com.vandenbreemen.grucd.model.Model
+import com.vandenbreemen.grucd.model.Type
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,6 +52,14 @@ class CodeSpyViewModel(private val grucdInteractor: GrucdInteractor) {
 
 
         }
+    }
+
+    fun onUserSelectedType(type: Type) {
+
+        //  There should never be a case where this is null, so force unwrapping here
+        //  to make it easier to spot a bug!
+        modelRenderingViewModel!!.focusOnType(type)
+
     }
 
 }

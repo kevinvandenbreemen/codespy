@@ -7,6 +7,7 @@ import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.logic.IUMLDiagramLayoutLogicInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.model.UMLDiagramLayoutModel
 import com.vandenbreemen.grucd.model.Model
+import com.vandenbreemen.grucd.model.Type
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,6 +20,10 @@ class ModelRenderingViewModel(private val model: Model) {
     val modelState: State<UMLDiagramLayoutModel> = _layoutModelState
 
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
+
+    fun focusOnType(type: Type) {
+        println("Focusing on type (vm): ${type.name}")
+    }
 
     fun computeLayoutForModel() {
         coroutineScope.launch {

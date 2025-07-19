@@ -122,7 +122,9 @@ fun App() {
                                 com.vandenbreemen.codespy.ui.SelectTypeDialog(
                                     viewModel = object : SelectTypeDialogViewModel(model) {
                                         override fun onTypeSelected(type: Type) {
-                                            // XXX  Handle type selection here
+
+                                            viewModel.onUserSelectedType(type)
+
                                             showTypeDialog.value = false
                                         }
                                     },
