@@ -50,17 +50,20 @@ class DefaultDrawingInteractor : IDrawingInteractor {
                 style = Stroke(width = 2.dp.toPx())
             )
 
-            // Draw type name
+            // Smaller font sizes for better readability
             val titleStyle = TextStyle(
-                fontSize = 14.sp,
+                fontSize = 12.sp, // Reduced from 14sp
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
 
             val packageStyle = TextStyle(
-                fontSize = 10.sp,
+                fontSize = 8.sp, // Reduced from 10sp
                 color = Color.DarkGray
             )
+
+            // Ellipsize package name if it has more than 4 segments
+            val ellipsizedPackage = ellipsizePackageName(positionedType.type.pkg)
 
             // Measure and draw title with safe positioning
             val titleResult = textMeasurer.measure(
@@ -85,7 +88,7 @@ class DefaultDrawingInteractor : IDrawingInteractor {
 
             // Measure and draw package name with safe positioning
             val packageResult = textMeasurer.measure(
-                text = positionedType.type.pkg,
+                text = ellipsizedPackage,
                 style = packageStyle
             )
 
@@ -103,6 +106,18 @@ class DefaultDrawingInteractor : IDrawingInteractor {
                     topLeft = Offset(packageX, packageY)
                 )
             }
+        }
+    }
+
+    /**
+     * Ellipsize package name to show only the last 4 segments if it's longer
+     */
+    private fun ellipsizePackageName(packageName: String): String {
+        val segments = packageName.split(".")
+        return if (segments.size > 4) {
+            "...${segments.takeLast(4).joinToString(".")}"
+        } else {
+            packageName
         }
     }
 

@@ -2,6 +2,7 @@ package com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.interactor
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.PositionedRelation
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.PositionedType
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.UMLDiagramLayoutModel
@@ -29,7 +30,7 @@ class DefaultUMLDialgramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor
         val optimalColumns = calculateOptimalColumns(typeCount)
 
         // Dynamic spacing based on content and relationships
-        val baseTypeSpacing = 200f
+        val baseTypeSpacing = 250f // Increased to accommodate larger boxes
         val baseVerticalSpacing = 150f
         val relationshipPadding = 50f // Extra space for relationship routing
 
@@ -38,7 +39,7 @@ class DefaultUMLDialgramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor
         val verticalSpacing =
             baseVerticalSpacing + if (overarchingSoftwareSystemModel.relations.isNotEmpty()) relationshipPadding else 0f
 
-        // Position types in an optimized grid
+        // Position types in an optimized grid with dynamic sizing
         types.forEachIndexed { index, type ->
             val column = index % optimalColumns
             val row = index / optimalColumns
@@ -46,7 +47,10 @@ class DefaultUMLDialgramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor
                 x = column * typeSpacing + 50f,
                 y = row * verticalSpacing + 50f
             )
-            layoutModel.addPositionedType(PositionedType(type, position))
+
+            // Calculate dynamic size based on type name and package name
+            val dynamicSize = calculateOptimalBoxSize(type)
+            layoutModel.addPositionedType(PositionedType(type, position, dynamicSize))
         }
 
         // Add relationships with collision-avoiding paths
@@ -349,5 +353,40 @@ class DefaultUMLDialgramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor
     private fun onSegment(p: Offset, q: Offset, r: Offset): Boolean {
         return q.x <= max(p.x, r.x) && q.x >= min(p.x, r.x) &&
                 q.y <= max(p.y, r.y) && q.y >= min(p.y, r.y)
+    }
+
+    /**
+     * Calculate optimal box size based on type name and package name length
+     */
+    private fun calculateOptimalBoxSize(type: Type): Size {
+        val baseWidth = 150f
+        val baseHeight = 100f
+
+        // Calculate width based on type name length
+        val typeName = type.name
+        val typeNameLength = typeName.length
+
+        // Ellipsized package name
+        val packageSegments = type.pkg.split(".")
+        val ellipsizedPackage = if (packageSegments.size > 4) {
+            "...${packageSegments.takeLast(4).joinToString(".")}"
+        } else {
+            type.pkg
+        }
+
+        // Calculate required width based on text content
+        // Approximate character width: 7px for title (12sp), 5px for package (8sp)
+        val titleWidth = typeNameLength * 7f
+        val packageWidth = ellipsizedPackage.length * 5f
+        val maxTextWidth = maxOf(titleWidth, packageWidth)
+
+        // Add padding (30px on each side) and ensure minimum width
+        val calculatedWidth = maxOf(baseWidth, maxTextWidth + 60f)
+
+        // Height adjustment for very long names that might wrap
+        val heightAdjustment = if (typeNameLength > 20) 20f else 0f
+        val calculatedHeight = baseHeight + heightAdjustment
+
+        return Size(calculatedWidth, calculatedHeight)
     }
 }
