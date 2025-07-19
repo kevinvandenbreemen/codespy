@@ -2,6 +2,7 @@ package com.vandenbreemen.com.vandenbreemen.codespy.viewmodel
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.viewmodel.ModelRenderingViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.interactor.GrucdInteractor
 import com.vandenbreemen.grucd.model.Model
@@ -44,7 +45,7 @@ class CodeSpyViewModel(private val grucdInteractor: GrucdInteractor) {
                 _modelState.value = generatedModel
 
                 //  Set up rendering view model
-                modelRenderingViewModel = ModelRenderingViewModel(generatedModel)
+                modelRenderingViewModel = ModelRenderingViewModel(generatedModel, Dependencies.main.layoutInteractor())
                 _renderingViewModelState.value = modelRenderingViewModel
             } else {
                 _modelState.value = null

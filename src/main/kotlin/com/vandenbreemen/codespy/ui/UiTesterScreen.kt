@@ -7,6 +7,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.viewmodel.ModelRenderingViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.SelectTypeDialogViewModel
 import com.vandenbreemen.grucd.model.Model
@@ -97,7 +98,7 @@ fun UiTesterScreen(onBack: () -> Unit) {
         Text("ModelRendering showcase:", modifier = Modifier.padding(bottom = 8.dp))
         ModelRendering(
             modifier = Modifier.weight(0.9f),
-            ModelRenderingViewModel(fakeModel),
+            ModelRenderingViewModel(fakeModel, Dependencies.main.layoutInteractor()),
             onTypeClick = { type ->
                 // Handle type click
                 println("Clicked on type: ${type.name} from package ${type.pkg}")
