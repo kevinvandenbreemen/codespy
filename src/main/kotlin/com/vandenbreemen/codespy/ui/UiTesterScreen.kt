@@ -30,6 +30,18 @@ fun UiTesterScreen(onBack: () -> Unit) {
             Type("Shipment", "com.shop"),
             Type("Payment", "com.example"),
             Type("Document", "com.shop.document"),
+
+            //  Give me a few extremely long type names and associated extremely long package names
+            Type(
+                "ExtremelyLongTypeNameThatExceedsNormalLength",
+                "com.example.very.long.package.name.to.test.wrapping.and.layouting"
+            ),
+            Type(
+                "AnotherExtremelyLongTypeNameThatExceedsNormalLength",
+                "com.example.another.very.long.package.name.to.test.wrapping.and.layouting"
+            )
+
+
         )
         Model(fakeTypes).apply {
             this.addRelation(
@@ -55,6 +67,23 @@ fun UiTesterScreen(onBack: () -> Unit) {
             addRelation(
                 //  order has a customer
                 TypeRelation(fakeTypes[1], fakeTypes[4], RelationType.encapsulates)
+            )
+
+            addRelation(
+                //  product has a review
+                TypeRelation(fakeTypes[2], fakeTypes[7], RelationType.encapsulates)
+            )
+
+            //  Relate some of the long types to each other and other types
+            addRelation(
+                TypeRelation(
+                    fakeTypes[11], fakeTypes[12], RelationType.subclass
+                )
+            )
+            addRelation(
+                TypeRelation(
+                    fakeTypes[11], fakeTypes[10], RelationType.encapsulates
+                )
             )
         }
     }
