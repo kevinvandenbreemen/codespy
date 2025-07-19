@@ -21,7 +21,13 @@ fun UiTesterScreen(onBack: () -> Unit) {
             Type("User", "com.example"),
             Type("Order", "com.example"),
             Type("Product", "com.shop"),
-            Type("Inventory", "com.shop")
+            Type("Inventory", "com.shop"),
+            Type("Customer", "com.example"),
+            Type("Supplier", "com.shop"),
+            Type("Category", "com.shop"),
+            Type("Review", "com.example"),
+            Type("Shipment", "com.shop"),
+            Type("Payment", "com.example")
         )
         Model(fakeTypes).apply {
             this.addRelation(
