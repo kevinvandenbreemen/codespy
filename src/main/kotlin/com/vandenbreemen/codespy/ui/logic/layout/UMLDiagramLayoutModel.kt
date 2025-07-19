@@ -13,9 +13,16 @@ data class PositionedType(
 
 data class PositionedRelation(
     val relation: TypeRelation,
-    val startPosition: Offset,
-    val endPosition: Offset
-)
+    val pathPoints: List<Offset>
+) {
+    // Convenience properties for backward compatibility
+    val startPosition: Offset get() = pathPoints.first()
+    val endPosition: Offset get() = pathPoints.last()
+
+    // Helper constructor for simple two-point relations
+    constructor(relation: TypeRelation, startPosition: Offset, endPosition: Offset) :
+            this(relation, listOf(startPosition, endPosition))
+}
 
 class UMLDiagramLayoutModel {
     val positionedTypes: MutableList<PositionedType> = mutableListOf()

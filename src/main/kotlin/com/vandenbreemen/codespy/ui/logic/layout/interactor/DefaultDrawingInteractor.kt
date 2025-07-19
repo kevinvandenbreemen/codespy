@@ -102,63 +102,46 @@ class DefaultDrawingInteractor : IDrawingInteractor {
         textMeasurer: TextMeasurer
     ) {
         with(drawScope) {
-            val start = positionedRelation.startPosition
-            val end = positionedRelation.endPosition
+            val pathPoints = positionedRelation.pathPoints
             val relationType = positionedRelation.relation.type
 
-            // Draw the main line based on relation type
+            // Draw the path based on relation type
             when (relationType) {
                 RelationType.subclass -> {
                     // Solid line for inheritance
-                    drawLine(
-                        color = Color.Black,
-                        start = start,
-                        end = end,
-                        strokeWidth = 2.dp.toPx()
-                    )
-                    drawInheritanceArrow(this, start, end)
+                    drawPath(pathPoints, Color.Black, 2.dp.toPx())
+                    drawInheritanceArrow(this, pathPoints[pathPoints.size - 2], pathPoints.last())
                 }
 
                 RelationType.encapsulates -> {
                     // Solid line for composition
-                    drawLine(
-                        color = Color.Black,
-                        start = start,
-                        end = end,
-                        strokeWidth = 2.dp.toPx()
-                    )
-                    drawCompositionArrow(this, start, end)
+                    drawPath(pathPoints, Color.Black, 2.dp.toPx())
+                    drawCompositionArrow(this, pathPoints.first(), pathPoints[1])
                 }
 
                 RelationType.implementation -> {
                     // Dashed line for implementation
-                    drawLine(
-                        color = Color.Black,
-                        start = start,
-                        end = end,
-                        strokeWidth = 2.dp.toPx(),
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f))
-                    )
-                    drawImplementationArrow(this, start, end)
+                    drawPath(pathPoints, Color.Black, 2.dp.toPx(), PathEffect.dashPathEffect(floatArrayOf(10f, 5f)))
+                    drawImplementationArrow(this, pathPoints[pathPoints.size - 2], pathPoints.last())
                 }
 
                 else -> {
                     // Default solid line
-                    drawLine(
-                        color = Color.Black,
-                        start = start,
-                        end = end,
-                        strokeWidth = 2.dp.toPx()
-                    )
-                    drawSimpleArrow(this, start, end)
+                    drawPath(pathPoints, Color.Black, 2.dp.toPx())
+                    drawSimpleArrow(this, pathPoints[pathPoints.size - 2], pathPoints.last())
                 }
             }
 
-            // Draw relation type label
-            val midPoint = Offset(
-                (start.x + end.x) / 2,
-                (start.y + end.y) / 2
-            )
+            // Draw relation type label at the midpoint of the path
+            val midPointIndex = pathPoints.size / 2
+            val labelPosition = if (pathPoints.size > 2) {
+                pathPoints[midPointIndex]
+            } else {
+                Offset(
+                    (pathPoints.first().x + pathPoints.last().x) / 2,
+                    (pathPoints.first().y + pathPoints.last().y) / 2
+                )
+            }
 
             val labelStyle = TextStyle(
                 fontSize = 8.sp,
@@ -169,7 +152,29 @@ class DefaultDrawingInteractor : IDrawingInteractor {
                 textMeasurer = textMeasurer,
                 text = relationType.name,
                 style = labelStyle,
-                topLeft = Offset(midPoint.x - 20, midPoint.y - 10)
+                topLeft = Offset(labelPosition.x - 20, labelPosition.y - 10)
+            )
+        }
+    }
+
+    /**
+     * Helper method to draw a path through multiple points
+     */
+    private fun DrawScope.drawPath(
+        points: List<Offset>,
+        color: Color,
+        strokeWidth: Float,
+        pathEffect: PathEffect? = null
+    ) {
+        if (points.size < 2) return
+
+        for (i in 0 until points.size - 1) {
+            drawLine(
+                color = color,
+                start = points[i],
+                end = points[i + 1],
+                strokeWidth = strokeWidth,
+                pathEffect = pathEffect
             )
         }
     }

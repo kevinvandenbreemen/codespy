@@ -34,14 +34,14 @@ class DefaultUMLDialgramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor
             layoutModel.addPositionedType(PositionedType(type, position))
         }
 
-        // Add relationships
+        // Add relationships with angled paths
         overarchingSoftwareSystemModel.relations.forEach { relation ->
             val fromType = layoutModel.positionedTypes.find { it.type == relation.from }
             val toType = layoutModel.positionedTypes.find { it.type == relation.to }
 
             if (fromType != null && toType != null) {
-                val (startPos, endPos) = calculateEdgeConnectionPoints(fromType, toType)
-                layoutModel.addPositionedRelation(PositionedRelation(relation, startPos, endPos))
+                val pathPoints = calculateAngledPath(fromType, toType)
+                layoutModel.addPositionedRelation(PositionedRelation(relation, pathPoints))
             }
         }
 
@@ -49,9 +49,9 @@ class DefaultUMLDialgramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor
     }
 
     /**
-     * Calculate connection points on the edges of two rectangles that are closest to each other
+     * Calculate an angled path between two types that creates sharp turns
      */
-    private fun calculateEdgeConnectionPoints(fromType: PositionedType, toType: PositionedType): Pair<Offset, Offset> {
+    private fun calculateAngledPath(fromType: PositionedType, toType: PositionedType): List<Offset> {
         val fromRect = Rect(fromType.position, fromType.size)
         val toRect = Rect(toType.position, toType.size)
 
@@ -63,36 +63,60 @@ class DefaultUMLDialgramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor
         val dx = toCenter.x - fromCenter.x
         val dy = toCenter.y - fromCenter.y
 
-        val fromEdgePoint: Offset
-        val toEdgePoint: Offset
+        val pathPoints = mutableListOf<Offset>()
 
         when {
-            // Horizontal connection (left-right or right-left)
+            // Horizontal connection with potential vertical detour
             abs(dx) > abs(dy) -> {
                 if (dx > 0) {
                     // fromType is left of toType
-                    fromEdgePoint = Offset(fromRect.right, fromCenter.y)
-                    toEdgePoint = Offset(toRect.left, toCenter.y)
+                    val startPoint = Offset(fromRect.right, fromCenter.y)
+                    val endPoint = Offset(toRect.left, toCenter.y)
+
+                    // Add intermediate points for angled path
+                    val midX = (startPoint.x + endPoint.x) / 2
+                    val cornerPoint1 = Offset(midX, startPoint.y)
+                    val cornerPoint2 = Offset(midX, endPoint.y)
+
+                    pathPoints.addAll(listOf(startPoint, cornerPoint1, cornerPoint2, endPoint))
                 } else {
                     // fromType is right of toType
-                    fromEdgePoint = Offset(fromRect.left, fromCenter.y)
-                    toEdgePoint = Offset(toRect.right, toCenter.y)
+                    val startPoint = Offset(fromRect.left, fromCenter.y)
+                    val endPoint = Offset(toRect.right, toCenter.y)
+
+                    val midX = (startPoint.x + endPoint.x) / 2
+                    val cornerPoint1 = Offset(midX, startPoint.y)
+                    val cornerPoint2 = Offset(midX, endPoint.y)
+
+                    pathPoints.addAll(listOf(startPoint, cornerPoint1, cornerPoint2, endPoint))
                 }
             }
-            // Vertical connection (top-bottom or bottom-top)
+            // Vertical connection with potential horizontal detour
             else -> {
                 if (dy > 0) {
                     // fromType is above toType
-                    fromEdgePoint = Offset(fromCenter.x, fromRect.bottom)
-                    toEdgePoint = Offset(toCenter.x, toRect.top)
+                    val startPoint = Offset(fromCenter.x, fromRect.bottom)
+                    val endPoint = Offset(toCenter.x, toRect.top)
+
+                    val midY = (startPoint.y + endPoint.y) / 2
+                    val cornerPoint1 = Offset(startPoint.x, midY)
+                    val cornerPoint2 = Offset(endPoint.x, midY)
+
+                    pathPoints.addAll(listOf(startPoint, cornerPoint1, cornerPoint2, endPoint))
                 } else {
                     // fromType is below toType
-                    fromEdgePoint = Offset(fromCenter.x, fromRect.top)
-                    toEdgePoint = Offset(toCenter.x, toRect.bottom)
+                    val startPoint = Offset(fromCenter.x, fromRect.top)
+                    val endPoint = Offset(toCenter.x, toRect.bottom)
+
+                    val midY = (startPoint.y + endPoint.y) / 2
+                    val cornerPoint1 = Offset(startPoint.x, midY)
+                    val cornerPoint2 = Offset(endPoint.x, midY)
+
+                    pathPoints.addAll(listOf(startPoint, cornerPoint1, cornerPoint2, endPoint))
                 }
             }
         }
 
-        return Pair(fromEdgePoint, toEdgePoint)
+        return pathPoints
     }
 }
