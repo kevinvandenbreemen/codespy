@@ -43,6 +43,19 @@ fun UiTesterScreen(onBack: () -> Unit) {
                 )
             )
             this.addRelation(TypeRelation(fakeTypes[9], fakeTypes[10], RelationType.implementation))
+            addRelation(
+                //  shipment has a payment
+                TypeRelation(fakeTypes[8], fakeTypes[9], RelationType.encapsulates)
+            )
+
+            addRelation(
+                //  product has a category
+                TypeRelation(fakeTypes[2], fakeTypes[6], RelationType.encapsulates)
+            )
+            addRelation(
+                //  order has a customer
+                TypeRelation(fakeTypes[1], fakeTypes[4], RelationType.encapsulates)
+            )
         }
     }
 
