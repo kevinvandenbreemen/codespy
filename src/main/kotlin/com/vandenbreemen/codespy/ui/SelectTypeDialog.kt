@@ -18,8 +18,12 @@ fun SelectTypeDialog(
     viewModel: SelectTypeDialogViewModel,
     onDismiss: () -> Unit
 ) {
-    // Try to extract types from model. Adjust this if your model structure is different.
+    var query by remember { mutableStateOf("") }
+    val filteredTypes by viewModel.visibleTypes
 
+    LaunchedEffect(query) {
+        viewModel.onUserInputChange(query)
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -34,9 +38,10 @@ fun SelectTypeDialog(
                 )
                 LazyColumn(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
                     items(filteredTypes.size) { idx ->
-                        val typeName = filteredTypes[idx]
+                        val type = filteredTypes[idx]
+                        val displayText = "${type.pkg}.${type.name}"
                         Text(
-                            typeName,
+                            displayText,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { /* Handle type selection here */ }
