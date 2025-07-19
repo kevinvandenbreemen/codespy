@@ -8,6 +8,8 @@ import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.UMLDiagramLay
 import com.vandenbreemen.grucd.model.Model
 import com.vandenbreemen.grucd.model.Type
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 class DefaultUMLDialgramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
 
@@ -34,13 +36,13 @@ class DefaultUMLDialgramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor
             layoutModel.addPositionedType(PositionedType(type, position))
         }
 
-        // Add relationships with angled paths
+        // Add relationships with collision-avoiding paths
         overarchingSoftwareSystemModel.relations.forEach { relation ->
             val fromType = layoutModel.positionedTypes.find { it.type == relation.from }
             val toType = layoutModel.positionedTypes.find { it.type == relation.to }
 
             if (fromType != null && toType != null) {
-                val pathPoints = calculateAngledPath(fromType, toType)
+                val pathPoints = calculateCollisionFreePath(fromType, toType, layoutModel.positionedTypes)
                 layoutModel.addPositionedRelation(PositionedRelation(relation, pathPoints))
             }
         }
@@ -49,74 +51,274 @@ class DefaultUMLDialgramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor
     }
 
     /**
-     * Calculate an angled path between two types that creates sharp turns
+     * Calculate a path that avoids colliding with other type boxes
      */
-    private fun calculateAngledPath(fromType: PositionedType, toType: PositionedType): List<Offset> {
+    private fun calculateCollisionFreePath(
+        fromType: PositionedType,
+        toType: PositionedType,
+        allTypes: List<PositionedType>
+    ): List<Offset> {
         val fromRect = Rect(fromType.position, fromType.size)
         val toRect = Rect(toType.position, toType.size)
 
-        // Calculate center points for direction determination
+        // Get all obstacle rectangles (excluding source and destination)
+        val obstacles = allTypes
+            .filter { it != fromType && it != toType }
+            .map { Rect(it.position, it.size) }
+
+        return findPathAroundObstacles(fromRect, toRect, obstacles)
+    }
+
+    /**
+     * Find a path from source to destination that avoids obstacles
+     */
+    private fun findPathAroundObstacles(
+        fromRect: Rect,
+        toRect: Rect,
+        obstacles: List<Rect>
+    ): List<Offset> {
         val fromCenter = Offset(fromRect.center.x, fromRect.center.y)
         val toCenter = Offset(toRect.center.x, toRect.center.y)
 
-        // Determine which edges are closest
+        // Determine connection points based on relative positions
+        val connectionPoints = calculateOptimalConnectionPoints(fromRect, toRect)
+        val startPoint = connectionPoints.first
+        val endPoint = connectionPoints.second
+
+        // Try direct path first
+        val directPath = listOf(startPoint, endPoint)
+        if (!pathIntersectsObstacles(directPath, obstacles)) {
+            return directPath
+        }
+
+        // If direct path intersects obstacles, find a route around them
+        return findRouteAroundObstacles(startPoint, endPoint, fromRect, toRect, obstacles)
+    }
+
+    /**
+     * Calculate optimal connection points based on the relative positions of the rectangles
+     */
+    private fun calculateOptimalConnectionPoints(fromRect: Rect, toRect: Rect): Pair<Offset, Offset> {
+        val fromCenter = Offset(fromRect.center.x, fromRect.center.y)
+        val toCenter = Offset(toRect.center.x, toRect.center.y)
+
         val dx = toCenter.x - fromCenter.x
         val dy = toCenter.y - fromCenter.y
 
-        val pathPoints = mutableListOf<Offset>()
-
-        when {
-            // Horizontal connection with potential vertical detour
+        return when {
             abs(dx) > abs(dy) -> {
                 if (dx > 0) {
                     // fromType is left of toType
-                    val startPoint = Offset(fromRect.right, fromCenter.y)
-                    val endPoint = Offset(toRect.left, toCenter.y)
-
-                    // Add intermediate points for angled path
-                    val midX = (startPoint.x + endPoint.x) / 2
-                    val cornerPoint1 = Offset(midX, startPoint.y)
-                    val cornerPoint2 = Offset(midX, endPoint.y)
-
-                    pathPoints.addAll(listOf(startPoint, cornerPoint1, cornerPoint2, endPoint))
+                    Offset(fromRect.right, fromCenter.y) to Offset(toRect.left, toCenter.y)
                 } else {
                     // fromType is right of toType
-                    val startPoint = Offset(fromRect.left, fromCenter.y)
-                    val endPoint = Offset(toRect.right, toCenter.y)
-
-                    val midX = (startPoint.x + endPoint.x) / 2
-                    val cornerPoint1 = Offset(midX, startPoint.y)
-                    val cornerPoint2 = Offset(midX, endPoint.y)
-
-                    pathPoints.addAll(listOf(startPoint, cornerPoint1, cornerPoint2, endPoint))
+                    Offset(fromRect.left, fromCenter.y) to Offset(toRect.right, toCenter.y)
                 }
             }
-            // Vertical connection with potential horizontal detour
             else -> {
                 if (dy > 0) {
                     // fromType is above toType
-                    val startPoint = Offset(fromCenter.x, fromRect.bottom)
-                    val endPoint = Offset(toCenter.x, toRect.top)
-
-                    val midY = (startPoint.y + endPoint.y) / 2
-                    val cornerPoint1 = Offset(startPoint.x, midY)
-                    val cornerPoint2 = Offset(endPoint.x, midY)
-
-                    pathPoints.addAll(listOf(startPoint, cornerPoint1, cornerPoint2, endPoint))
+                    Offset(fromCenter.x, fromRect.bottom) to Offset(toCenter.x, toRect.top)
                 } else {
                     // fromType is below toType
-                    val startPoint = Offset(fromCenter.x, fromRect.top)
-                    val endPoint = Offset(toCenter.x, toRect.bottom)
-
-                    val midY = (startPoint.y + endPoint.y) / 2
-                    val cornerPoint1 = Offset(startPoint.x, midY)
-                    val cornerPoint2 = Offset(endPoint.x, midY)
-
-                    pathPoints.addAll(listOf(startPoint, cornerPoint1, cornerPoint2, endPoint))
+                    Offset(fromCenter.x, fromRect.top) to Offset(toCenter.x, toRect.bottom)
                 }
             }
         }
+    }
 
-        return pathPoints
+    /**
+     * Find a route around obstacles using a simple orthogonal pathfinding approach
+     */
+    private fun findRouteAroundObstacles(
+        start: Offset,
+        end: Offset,
+        fromRect: Rect,
+        toRect: Rect,
+        obstacles: List<Rect>
+    ): List<Offset> {
+        // Create expanded obstacles with padding to ensure lines don't get too close
+        val padding = 20f
+        val expandedObstacles = obstacles.map { obstacle ->
+            Rect(
+                left = obstacle.left - padding,
+                top = obstacle.top - padding,
+                right = obstacle.right + padding,
+                bottom = obstacle.bottom + padding
+            )
+        }
+
+        // Try different routing strategies
+        val routingStrategies = listOf(
+            { createLShapedPath(start, end) },
+            { createDetourPath(start, end, expandedObstacles, above = true) },
+            { createDetourPath(start, end, expandedObstacles, above = false) },
+            { createSidewaysDetourPath(start, end, expandedObstacles, left = true) },
+            { createSidewaysDetourPath(start, end, expandedObstacles, left = false) }
+        )
+
+        // Try each strategy and return the first one that doesn't intersect obstacles
+        for (strategy in routingStrategies) {
+            val path = strategy()
+            if (!pathIntersectsObstacles(path, expandedObstacles)) {
+                return path
+            }
+        }
+
+        // If all strategies fail, return a basic L-shaped path
+        return createLShapedPath(start, end)
+    }
+
+    /**
+     * Create a simple L-shaped path
+     */
+    private fun createLShapedPath(start: Offset, end: Offset): List<Offset> {
+        val midX = (start.x + end.x) / 2
+        return listOf(
+            start,
+            Offset(midX, start.y),
+            Offset(midX, end.y),
+            end
+        )
+    }
+
+    /**
+     * Create a detour path that goes above or below obstacles
+     */
+    private fun createDetourPath(
+        start: Offset,
+        end: Offset,
+        obstacles: List<Rect>,
+        above: Boolean
+    ): List<Offset> {
+        if (obstacles.isEmpty()) return createLShapedPath(start, end)
+
+        // Find the extreme Y coordinate of obstacles in the path area
+        val minX = min(start.x, end.x)
+        val maxX = max(start.x, end.x)
+        val relevantObstacles = obstacles.filter { obstacle ->
+            obstacle.right >= minX && obstacle.left <= maxX
+        }
+
+        if (relevantObstacles.isEmpty()) return createLShapedPath(start, end)
+
+        val extremeY = if (above) {
+            relevantObstacles.minOf { it.top } - 30f
+        } else {
+            relevantObstacles.maxOf { it.bottom } + 30f
+        }
+
+        return listOf(
+            start,
+            Offset(start.x, extremeY),
+            Offset(end.x, extremeY),
+            end
+        )
+    }
+
+    /**
+     * Create a detour path that goes to the left or right of obstacles
+     */
+    private fun createSidewaysDetourPath(
+        start: Offset,
+        end: Offset,
+        obstacles: List<Rect>,
+        left: Boolean
+    ): List<Offset> {
+        if (obstacles.isEmpty()) return createLShapedPath(start, end)
+
+        // Find the extreme X coordinate of obstacles in the path area
+        val minY = min(start.y, end.y)
+        val maxY = max(start.y, end.y)
+        val relevantObstacles = obstacles.filter { obstacle ->
+            obstacle.bottom >= minY && obstacle.top <= maxY
+        }
+
+        if (relevantObstacles.isEmpty()) return createLShapedPath(start, end)
+
+        val extremeX = if (left) {
+            relevantObstacles.minOf { it.left } - 30f
+        } else {
+            relevantObstacles.maxOf { it.right } + 30f
+        }
+
+        return listOf(
+            start,
+            Offset(extremeX, start.y),
+            Offset(extremeX, end.y),
+            end
+        )
+    }
+
+    /**
+     * Check if a path intersects with any obstacles
+     */
+    private fun pathIntersectsObstacles(path: List<Offset>, obstacles: List<Rect>): Boolean {
+        if (path.size < 2) return false
+
+        for (i in 0 until path.size - 1) {
+            val lineStart = path[i]
+            val lineEnd = path[i + 1]
+
+            for (obstacle in obstacles) {
+                if (lineIntersectsRect(lineStart, lineEnd, obstacle)) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    /**
+     * Check if a line segment intersects with a rectangle
+     */
+    private fun lineIntersectsRect(lineStart: Offset, lineEnd: Offset, rect: Rect): Boolean {
+        // Check if line endpoints are inside the rectangle
+        if (rect.contains(lineStart) || rect.contains(lineEnd)) {
+            return true
+        }
+
+        // Check intersection with each edge of the rectangle
+        val rectEdges = listOf(
+            rect.topLeft to rect.topRight,
+            rect.topRight to rect.bottomRight,
+            rect.bottomRight to rect.bottomLeft,
+            rect.bottomLeft to rect.topLeft
+        )
+
+        return rectEdges.any { (edgeStart, edgeEnd) ->
+            linesIntersect(lineStart, lineEnd, edgeStart, edgeEnd)
+        }
+    }
+
+    /**
+     * Check if two line segments intersect
+     */
+    private fun linesIntersect(
+        line1Start: Offset,
+        line1End: Offset,
+        line2Start: Offset,
+        line2End: Offset
+    ): Boolean {
+        val d1 = direction(line2Start, line2End, line1Start)
+        val d2 = direction(line2Start, line2End, line1End)
+        val d3 = direction(line1Start, line1End, line2Start)
+        val d4 = direction(line1Start, line1End, line2End)
+
+        return (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) &&
+                ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) ||
+                (d1 == 0f && onSegment(line2Start, line1Start, line2End)) ||
+                (d2 == 0f && onSegment(line2Start, line1End, line2End)) ||
+                (d3 == 0f && onSegment(line1Start, line2Start, line1End)) ||
+                (d4 == 0f && onSegment(line1Start, line2End, line1End))
+    }
+
+    private fun direction(a: Offset, b: Offset, c: Offset): Float {
+        return (c.x - a.x) * (b.y - a.y) - (b.x - a.x) * (c.y - a.y)
+    }
+
+    private fun onSegment(p: Offset, q: Offset, r: Offset): Boolean {
+        return q.x <= max(p.x, r.x) && q.x >= min(p.x, r.x) &&
+                q.y <= max(p.y, r.y) && q.y >= min(p.y, r.y)
     }
 }
