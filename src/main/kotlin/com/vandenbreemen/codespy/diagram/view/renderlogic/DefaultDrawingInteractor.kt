@@ -40,7 +40,7 @@ class DefaultDrawingInteractor : IDrawingInteractor {
             val backgroundColor =
                 if (isHighlighted) Color(0xFFE3F2FD) else Color.LightGray // Light blue for highlighted
             val borderColor = if (isHighlighted) Color(0xFF1976D2) else Color.Black // Blue border for highlighted
-            val borderWidth = if (isHighlighted) 3.dp.toPx() else 2.dp.toPx() // Thicker border for highlighted
+            val borderWidth = if (isHighlighted) 3.dp.toPx() else 1.dp.toPx() // Thicker border for highlighted
 
             // Draw box background
             drawRect(
@@ -141,25 +141,25 @@ class DefaultDrawingInteractor : IDrawingInteractor {
             when (relationType) {
                 RelationType.subclass -> {
                     // Solid line for inheritance
-                    drawPath(pathPoints, Color.Black, 2.dp.toPx())
+                    drawPath(pathPoints, Color.Black, 1.dp.toPx())
                     drawInheritanceArrow(this, pathPoints[pathPoints.size - 2], pathPoints.last())
                 }
 
                 RelationType.encapsulates -> {
                     // Solid line for composition
-                    drawPath(pathPoints, Color.Black, 2.dp.toPx())
+                    drawPath(pathPoints, Color.Black, 1.dp.toPx())
                     drawCompositionArrow(this, pathPoints.first(), pathPoints[1])
                 }
 
                 RelationType.implementation -> {
                     // Dashed line for implementation
-                    drawPath(pathPoints, Color.Black, 2.dp.toPx(), PathEffect.dashPathEffect(floatArrayOf(10f, 5f)))
+                    drawPath(pathPoints, Color.Black, 1.dp.toPx(), PathEffect.dashPathEffect(floatArrayOf(10f, 5f)))
                     drawImplementationArrow(this, pathPoints[pathPoints.size - 2], pathPoints.last())
                 }
 
                 else -> {
                     // Default solid line
-                    drawPath(pathPoints, Color.Black, 2.dp.toPx())
+                    drawPath(pathPoints, Color.Black, 1.dp.toPx())
                     drawSimpleArrow(this, pathPoints[pathPoints.size - 2], pathPoints.last())
                 }
             }
@@ -261,7 +261,7 @@ class DefaultDrawingInteractor : IDrawingInteractor {
             drawPath(
                 path = arrowPath,
                 color = Color.Black,
-                style = Stroke(width = 2.dp.toPx())
+                style = Stroke(width = 1.dp.toPx())
             )
         }
     }
@@ -304,7 +304,7 @@ class DefaultDrawingInteractor : IDrawingInteractor {
             drawPath(
                 path = diamondPath,
                 color = Color.Black,
-                style = Stroke(width = 2.dp.toPx())
+                style = Stroke(width = 1.dp.toPx())
             )
         }
     }
@@ -341,7 +341,7 @@ class DefaultDrawingInteractor : IDrawingInteractor {
             drawPath(
                 path = arrowPath,
                 color = Color.Black,
-                style = Stroke(width = 2.dp.toPx())
+                style = Stroke(width = 1.dp.toPx())
             )
         }
     }
@@ -363,7 +363,7 @@ class DefaultDrawingInteractor : IDrawingInteractor {
                     end.x - arrowSize * cos(angle - PI / 6).toFloat(),
                     end.y - arrowSize * sin(angle - PI / 6).toFloat()
                 ),
-                strokeWidth = 2.dp.toPx()
+                strokeWidth = 1.dp.toPx()
             )
 
             drawLine(
@@ -373,7 +373,7 @@ class DefaultDrawingInteractor : IDrawingInteractor {
                     end.x - arrowSize * cos(angle + PI / 6).toFloat(),
                     end.y - arrowSize * sin(angle + PI / 6).toFloat()
                 ),
-                strokeWidth = 2.dp.toPx()
+                strokeWidth = 1.dp.toPx()
             )
         }
     }
