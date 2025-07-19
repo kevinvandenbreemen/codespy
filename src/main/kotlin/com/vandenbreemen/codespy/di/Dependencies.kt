@@ -1,10 +1,10 @@
 package com.vandenbreemen.com.vandenbreemen.codespy.di
 
+import com.vandenbreemen.com.vandenbreemen.codespy.diagram.logic.DefaultUMLDialgramLayoutLogicInteractor
+import com.vandenbreemen.com.vandenbreemen.codespy.diagram.logic.IUMLDiagramLayoutLogicInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.interactor.GrucdInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.interactor.DefaultDrawingInteractor
-import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.interactor.DefaultUMLDialgramLayoutLogicInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.interactor.IDrawingInteractor
-import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.interactor.IUMLDiagramLayoutLogicInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.viewmodel.CodeSpyViewModel
 
 /**

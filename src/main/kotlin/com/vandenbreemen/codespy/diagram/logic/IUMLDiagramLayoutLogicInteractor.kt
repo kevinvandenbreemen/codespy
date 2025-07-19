@@ -1,4 +1,4 @@
-package com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.interactor
+package com.vandenbreemen.com.vandenbreemen.codespy.diagram.logic
 
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.UMLDiagramLayoutModel
 import com.vandenbreemen.grucd.model.Model

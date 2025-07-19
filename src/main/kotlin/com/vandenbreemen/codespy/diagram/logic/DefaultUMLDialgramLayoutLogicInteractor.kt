@@ -1,4 +1,4 @@
-package com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.interactor
+package com.vandenbreemen.com.vandenbreemen.codespy.diagram.logic
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -8,9 +8,7 @@ import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.PositionedTyp
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.layout.UMLDiagramLayoutModel
 import com.vandenbreemen.grucd.model.Model
 import com.vandenbreemen.grucd.model.Type
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
+import kotlin.math.*
 
 class DefaultUMLDialgramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
 
@@ -79,7 +77,7 @@ class DefaultUMLDialgramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor
             typeCount <= 9 -> 3
             typeCount <= 16 -> 4
             typeCount <= 25 -> 5
-            else -> kotlin.math.ceil(kotlin.math.sqrt(typeCount.toDouble())).toInt()
+            else -> ceil(sqrt(typeCount.toDouble())).toInt()
         }
     }
 
