@@ -17,6 +17,7 @@ import com.vandenbreemen.codespy.ui.FileSelectDialog
 import com.vandenbreemen.codespy.ui.ModelRendering
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.SelectTypeDialogViewModel
+import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.TypeLayoutLogicViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.viewmodel.CodeSpyViewModel
 import com.vandenbreemen.grucd.model.Type
 import kotlinx.coroutines.launch
@@ -112,7 +113,11 @@ fun App() {
                             }
                             // Render the model if available
                             val model = viewModel.modelState.value
-                            ModelRendering(model)
+                            model?.let {
+                                ModelRendering(TypeLayoutLogicViewModel(model))
+                            } ?: run {
+                                Text("No model loaded. Please select a directory with a valid model.")
+                            }
                             if (showTypeDialog.value && model != null) {
                                 com.vandenbreemen.codespy.ui.SelectTypeDialog(
                                     viewModel = object : SelectTypeDialogViewModel(model) {
