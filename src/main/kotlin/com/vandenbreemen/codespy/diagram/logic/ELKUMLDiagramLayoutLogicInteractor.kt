@@ -33,9 +33,9 @@ class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
         // Configure layout options
         root.setProperty(CoreOptions.ALGORITHM, "org.eclipse.elk.layered")
         root.setProperty(CoreOptions.DIRECTION, Direction.DOWN)
-        root.setProperty(CoreOptions.SPACING_NODE_NODE, 80.0)
-        root.setProperty(CoreOptions.SPACING_EDGE_EDGE, 20.0)
-        root.setProperty(CoreOptions.SPACING_EDGE_NODE, 30.0)
+        root.setProperty(CoreOptions.SPACING_NODE_NODE, 150.0) // Increased for more space
+        root.setProperty(CoreOptions.SPACING_EDGE_EDGE, 40.0)  // Increased for more space
+        root.setProperty(CoreOptions.SPACING_EDGE_NODE, 60.0)  // Increased for more space
 
         // Map to keep track of types to nodes
         val typeToNodeMap = mutableMapOf<String, ElkNode>()
@@ -154,15 +154,33 @@ class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
                     val targetNode: ElkNode? = typeToNodeMap[toTypeName]
 
                     if (sourceNode != null && targetNode != null) {
-                        // Create path points based on ELK edge sections
+                        // Create path points with edge connections instead of center connections
                         val pathPoints = mutableListOf<Offset>()
 
-                        // Start point (center of source node)
-                        val startPoint = Offset(
+                        // Calculate box centers first
+                        val sourceCenter = Offset(
                             sourceNode.x.toFloat() + sourceNode.width.toFloat() / 2,
                             sourceNode.y.toFloat() + sourceNode.height.toFloat() / 2
                         )
-                        pathPoints.add(startPoint)
+                        val targetCenter = Offset(
+                            targetNode.x.toFloat() + targetNode.width.toFloat() / 2,
+                            targetNode.y.toFloat() + targetNode.height.toFloat() / 2
+                        )
+
+                        // Calculate edge connection points
+                        val sourceEdgePoint = calculateEdgeConnectionPoint(
+                            sourceNode.x.toFloat(), sourceNode.y.toFloat(),
+                            sourceNode.width.toFloat(), sourceNode.height.toFloat(),
+                            sourceCenter, targetCenter
+                        )
+
+                        val targetEdgePoint = calculateEdgeConnectionPoint(
+                            targetNode.x.toFloat(), targetNode.y.toFloat(),
+                            targetNode.width.toFloat(), targetNode.height.toFloat(),
+                            targetCenter, sourceCenter
+                        )
+
+                        pathPoints.add(sourceEdgePoint)
 
                         // Add bend points if any (ELK may create routing points)
                         elkEdge.sections.forEach { section ->
@@ -171,12 +189,7 @@ class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
                             }
                         }
 
-                        // End point (center of target node)
-                        val endPoint = Offset(
-                            targetNode.x.toFloat() + targetNode.width.toFloat() / 2,
-                            targetNode.y.toFloat() + targetNode.height.toFloat() / 2
-                        )
-                        pathPoints.add(endPoint)
+                        pathPoints.add(targetEdgePoint)
 
                         val positionedRelation = PositionedRelation(originalRelation, pathPoints)
                         layoutModel.addPositionedRelation(positionedRelation)
@@ -186,5 +199,36 @@ class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
         }
 
         return layoutModel
+    }
+
+    /**
+     * Calculate the connection point on the edge of a box (node) for routing the line
+     */
+    private fun calculateEdgeConnectionPoint(
+        nodeX: Float,
+        nodeY: Float,
+        nodeWidth: Float,
+        nodeHeight: Float,
+        sourceCenter: Offset,
+        targetCenter: Offset
+    ): Offset {
+        // Calculate the center points of the source and target
+        val sourceCenterX = sourceCenter.x
+        val sourceCenterY = sourceCenter.y
+        val targetCenterX = targetCenter.x
+        val targetCenterY = targetCenter.y
+
+        // Calculate the difference in position
+        val deltaX = targetCenterX - sourceCenterX
+        val deltaY = targetCenterY - sourceCenterY
+
+        // Calculate the angle of the line
+        val angle = Math.atan2(deltaY.toDouble(), deltaX.toDouble())
+
+        // Calculate the edge connection point on the source node
+        val connectionX = nodeX + nodeWidth / 2 + Math.cos(angle) * (nodeWidth / 2)
+        val connectionY = nodeY + nodeHeight / 2 + Math.sin(angle) * (nodeHeight / 2)
+
+        return Offset(connectionX.toFloat(), connectionY.toFloat())
     }
 }

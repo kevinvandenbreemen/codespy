@@ -137,30 +137,41 @@ class DefaultDrawingInteractor : IDrawingInteractor {
             val pathPoints = positionedRelation.pathPoints
             val relationType = positionedRelation.relation.type
 
+            // Safety check - need at least 2 points
+            if (pathPoints.size < 2) return
+
             // Draw the path based on relation type
             when (relationType) {
                 RelationType.subclass -> {
                     // Solid line for inheritance
                     drawPath(pathPoints, Color.Black, 1.dp.toPx())
-                    drawInheritanceArrow(this, pathPoints[pathPoints.size - 2], pathPoints.last())
+                    val startPoint = if (pathPoints.size > 1) pathPoints[pathPoints.size - 2] else pathPoints.first()
+                    val endPoint = pathPoints.last()
+                    drawInheritanceArrow(this, startPoint, endPoint)
                 }
 
                 RelationType.encapsulates -> {
                     // Solid line for composition
                     drawPath(pathPoints, Color.Black, 1.dp.toPx())
-                    drawCompositionArrow(this, pathPoints.first(), pathPoints[1])
+                    val startPoint = pathPoints.first()
+                    val endPoint = if (pathPoints.size > 1) pathPoints[1] else pathPoints.last()
+                    drawCompositionArrow(this, startPoint, endPoint)
                 }
 
                 RelationType.implementation -> {
                     // Dashed line for implementation
                     drawPath(pathPoints, Color.Black, 1.dp.toPx(), PathEffect.dashPathEffect(floatArrayOf(10f, 5f)))
-                    drawImplementationArrow(this, pathPoints[pathPoints.size - 2], pathPoints.last())
+                    val startPoint = if (pathPoints.size > 1) pathPoints[pathPoints.size - 2] else pathPoints.first()
+                    val endPoint = pathPoints.last()
+                    drawImplementationArrow(this, startPoint, endPoint)
                 }
 
                 else -> {
                     // Default solid line
                     drawPath(pathPoints, Color.Black, 1.dp.toPx())
-                    drawSimpleArrow(this, pathPoints[pathPoints.size - 2], pathPoints.last())
+                    val startPoint = if (pathPoints.size > 1) pathPoints[pathPoints.size - 2] else pathPoints.first()
+                    val endPoint = pathPoints.last()
+                    drawSimpleArrow(this, startPoint, endPoint)
                 }
             }
 
