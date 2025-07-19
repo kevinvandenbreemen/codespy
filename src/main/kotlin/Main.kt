@@ -16,7 +16,6 @@ import androidx.compose.ui.window.rememberWindowState
 import com.vandenbreemen.codespy.ui.FileSelectDialog
 import com.vandenbreemen.codespy.ui.ModelRendering
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
-import com.vandenbreemen.com.vandenbreemen.codespy.diagram.viewmodel.ModelRenderingViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.SelectTypeDialogViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.viewmodel.CodeSpyViewModel
 import com.vandenbreemen.grucd.model.Type
@@ -112,12 +111,13 @@ fun App() {
                                 Text(message)
                             }
                             // Render the model if available
-                            val model = viewModel.modelState.value
-                            model?.let {
-                                ModelRendering(modelRenderingViewModel = ModelRenderingViewModel(model))
+                            viewModel.renderingViewModelState.value?.let {
+                                ModelRendering(modelRenderingViewModel = it)
                             } ?: run {
-                                Text("No model loaded. Please select a directory with a valid model.")
+                                Text("No model rendering available. Please select a directory with a valid model.")
                             }
+
+                            val model = viewModel.modelState.value
                             if (showTypeDialog.value && model != null) {
                                 com.vandenbreemen.codespy.ui.SelectTypeDialog(
                                     viewModel = object : SelectTypeDialogViewModel(model) {

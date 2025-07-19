@@ -1,13 +1,14 @@
 package com.vandenbreemen.com.vandenbreemen.codespy.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import com.vandenbreemen.com.vandenbreemen.codespy.diagram.viewmodel.ModelRenderingViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.interactor.GrucdInteractor
 import com.vandenbreemen.grucd.model.Model
-import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 
 class CodeSpyViewModel(private val grucdInteractor: GrucdInteractor) {
     private val _directoryMessage = mutableStateOf("")
@@ -19,6 +20,10 @@ class CodeSpyViewModel(private val grucdInteractor: GrucdInteractor) {
     private var model: Model? = null
     private val _modelState = mutableStateOf<Model?>(null)
     val modelState: State<Model?> = _modelState
+
+    private var modelRenderingViewModel: ModelRenderingViewModel? = null
+    private val _renderingViewModelState = mutableStateOf<ModelRenderingViewModel?>(null)
+    val renderingViewModelState: State<ModelRenderingViewModel?> = _renderingViewModelState
 
     fun selectNewDirectory(path: File) {
         viewModelScope.launch {
@@ -36,6 +41,10 @@ class CodeSpyViewModel(private val grucdInteractor: GrucdInteractor) {
                 val generatedModel = grucdInteractor.getModel(path)
                 model = generatedModel
                 _modelState.value = generatedModel
+
+                //  Set up rendering view model
+                modelRenderingViewModel = ModelRenderingViewModel(generatedModel)
+                _renderingViewModelState.value = modelRenderingViewModel
             } else {
                 _modelState.value = null
             }
