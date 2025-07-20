@@ -5,6 +5,7 @@ import com.vandenbreemen.com.vandenbreemen.codespy.diagram.logic.IUMLDiagramLayo
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.view.renderlogic.DefaultDrawingInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.view.renderlogic.IDrawingInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.interactor.GrucdInteractor
+import com.vandenbreemen.com.vandenbreemen.codespy.interactor.UserPreferenceInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.viewmodel.CodeSpyViewModel
 
 /**
@@ -22,7 +23,7 @@ class Dependencies {
     }
 
     fun grucdInteractor() = grucdInteractor
-    fun codeSpyViewModel() = CodeSpyViewModel(grucdInteractor())
+    fun codeSpyViewModel() = CodeSpyViewModel(grucdInteractor(), userPreferencesInteractor())
 
     fun layoutInteractor(): IUMLDiagramLayoutLogicInteractor {
         return elkLayoutInteractor()
@@ -33,5 +34,7 @@ class Dependencies {
     }
 
     fun drawingInteractor(): IDrawingInteractor = DefaultDrawingInteractor()
+
+    fun userPreferencesInteractor() = UserPreferenceInteractor()
 
 }

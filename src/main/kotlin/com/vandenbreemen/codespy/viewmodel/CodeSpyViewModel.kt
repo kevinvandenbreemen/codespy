@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.viewmodel.ModelRenderingViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.interactor.GrucdInteractor
+import com.vandenbreemen.com.vandenbreemen.codespy.interactor.UserPreferenceInteractor
 import com.vandenbreemen.grucd.model.Model
 import com.vandenbreemen.grucd.model.Type
 import kotlinx.coroutines.CoroutineScope
@@ -12,7 +13,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 
-class CodeSpyViewModel(private val grucdInteractor: GrucdInteractor) {
+class CodeSpyViewModel(
+    private val grucdInteractor: GrucdInteractor,
+    private val userPreferenceInteractor: UserPreferenceInteractor
+) {
     private val _directoryMessage = mutableStateOf("")
     val directoryMessage: State<String> = _directoryMessage
     private val viewModelScope = CoroutineScope(Dispatchers.IO)
