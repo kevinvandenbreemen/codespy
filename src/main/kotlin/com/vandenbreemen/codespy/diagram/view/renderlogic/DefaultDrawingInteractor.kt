@@ -113,7 +113,128 @@ class DefaultDrawingInteractor : IDrawingInteractor {
                     topLeft = Offset(packageX, packageY)
                 )
             }
+
+            // Draw separator line between header and fields
+            val separatorY = packageY + packageResult.size.height + 8.dp.toPx()
+            if (separatorY < rect.bottom - 10.dp.toPx() && positionedType.type.fields.isNotEmpty()) {
+                drawLine(
+                    color = borderColor,
+                    start = Offset(rect.left + 5.dp.toPx(), separatorY),
+                    end = Offset(rect.right - 5.dp.toPx(), separatorY),
+                    strokeWidth = 1.dp.toPx()
+                )
+            }
+
+            // Draw fields
+            drawFields(
+                rect = rect,
+                fields = positionedType.type.fields,
+                textMeasurer = textMeasurer,
+                startY = separatorY + 5.dp.toPx(),
+                maxWidth = rect.width - 10.dp.toPx() // Leave padding on sides
+            )
         }
+    }
+
+    /**
+     * Draw fields within the type box
+     */
+    private fun DrawScope.drawFields(
+        rect: Rect,
+        fields: List<com.vandenbreemen.grucd.model.Field>,
+        textMeasurer: TextMeasurer,
+        startY: Float,
+        maxWidth: Float
+    ) {
+        if (fields.isEmpty()) return
+
+        val fieldStyle = TextStyle(
+            fontSize = 10.sp,
+            color = Color.Black
+        )
+
+        var currentY = startY
+        val fieldSpacing = 16.dp.toPx() // Space between fields
+        val leftMargin = rect.left + 5.dp.toPx() // Left margin for fields
+
+        fields.forEach { field ->
+
+            val visibilityPrefix = when (field.visibility) {
+                com.vandenbreemen.grucd.model.Visibility.Public -> "+"
+                com.vandenbreemen.grucd.model.Visibility.Private -> "-"
+            }
+
+            val fieldText = "$visibilityPrefix ${field.name}: ${field.typeName}"
+            val fieldResult = textMeasurer.measure(
+                text = fieldText,
+                style = fieldStyle
+            )
+
+            // Check if we have enough space to draw this field
+            if (currentY + fieldResult.size.height <= rect.bottom - 5.dp.toPx()) {
+                // Truncate field text if it's too wide
+                val truncatedText = if (fieldResult.size.width > maxWidth) {
+                    truncateFieldText(fieldText, textMeasurer, fieldStyle, maxWidth)
+                } else {
+                    fieldText
+                }
+
+                val finalResult = textMeasurer.measure(
+                    text = truncatedText,
+                    style = fieldStyle
+                )
+
+                // Only draw if it fits within bounds
+                if (leftMargin >= 0f && currentY >= 0f &&
+                    leftMargin + finalResult.size.width <= size.width &&
+                    currentY + finalResult.size.height <= size.height
+                ) {
+                    drawText(
+                        textLayoutResult = finalResult,
+                        topLeft = Offset(leftMargin, currentY)
+                    )
+                }
+
+                currentY += fieldSpacing
+            } else {
+                // Not enough space for more fields, draw "..." to indicate truncation
+                if (currentY + fieldSpacing <= rect.bottom - 5.dp.toPx()) {
+                    val ellipsisResult = textMeasurer.measure("...", fieldStyle)
+                    if (leftMargin + ellipsisResult.size.width <= size.width &&
+                        currentY + ellipsisResult.size.height <= size.height
+                    ) {
+                        drawText(
+                            textLayoutResult = ellipsisResult,
+                            topLeft = Offset(leftMargin, currentY)
+                        )
+                    }
+                }
+                return // Stop drawing fields
+            }
+        }
+    }
+
+    /**
+     * Truncate field text to fit within the specified width
+     */
+    private fun truncateFieldText(
+        text: String,
+        textMeasurer: TextMeasurer,
+        style: TextStyle,
+        maxWidth: Float
+    ): String {
+        if (text.length <= 3) return text
+
+        // Try progressively shorter versions until it fits
+        for (length in text.length - 1 downTo 1) {
+            val truncated = text.take(length) + "..."
+            val measuredWidth = textMeasurer.measure(truncated, style).size.width
+            if (measuredWidth <= maxWidth) {
+                return truncated
+            }
+        }
+
+        return "..." // Fallback if even "..." doesn't fit
     }
 
     /**

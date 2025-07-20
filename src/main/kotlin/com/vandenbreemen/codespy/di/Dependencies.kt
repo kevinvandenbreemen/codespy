@@ -1,6 +1,6 @@
 package com.vandenbreemen.com.vandenbreemen.codespy.di
 
-import com.vandenbreemen.com.vandenbreemen.codespy.diagram.logic.DefaultUMLDialgramLayoutLogicInteractor
+import com.vandenbreemen.com.vandenbreemen.codespy.diagram.logic.ELKUMLDiagramLayoutLogicInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.logic.IUMLDiagramLayoutLogicInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.view.renderlogic.DefaultDrawingInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.view.renderlogic.IDrawingInteractor
@@ -25,7 +25,11 @@ class Dependencies {
     fun codeSpyViewModel() = CodeSpyViewModel(grucdInteractor())
 
     fun layoutInteractor(): IUMLDiagramLayoutLogicInteractor {
-        return DefaultUMLDialgramLayoutLogicInteractor()
+        return elkLayoutInteractor()
+    }
+
+    fun elkLayoutInteractor(): IUMLDiagramLayoutLogicInteractor {
+        return ELKUMLDiagramLayoutLogicInteractor()
     }
 
     fun drawingInteractor(): IDrawingInteractor = DefaultDrawingInteractor()
