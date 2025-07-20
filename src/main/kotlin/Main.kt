@@ -34,6 +34,7 @@ fun App() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val showFileDialog = remember { mutableStateOf(false) }
+    val showTypeAndImmediateTypesDialog = remember { mutableStateOf(false) }
     val selectedFile = remember { mutableStateOf<File?>(null) }
     val showTypeDialog = remember { mutableStateOf(false) }
     val showUiTester = remember { mutableStateOf(false) }
@@ -60,6 +61,17 @@ fun App() {
                                 .padding(vertical = 8.dp)
                                 .clickable {
                                     showTypeDialog.value = true
+                                    scope.launch { drawerState.close() }
+                                }
+                        )
+
+                        //  Show dialog for selecting a type along with its immediate types
+                        Text(
+                            "Select Type Local System to View",
+                            modifier = Modifier
+                                .padding(vertical = 8.dp)
+                                .clickable {
+                                    showTypeAndImmediateTypesDialog.value = true
                                     scope.launch { drawerState.close() }
                                 }
                         )
