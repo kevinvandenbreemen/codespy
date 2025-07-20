@@ -116,7 +116,13 @@ fun App() {
                             viewModel.renderingViewModelState.value?.let {
                                 ModelRendering(modelRenderingViewModel = it)
                             } ?: run {
-                                Text("No model rendering available. Please select a directory with a valid model.")
+
+                                //  Check view model for spinner state.  If present show spinner
+                                if (viewModel.isLoadingState.value) {
+                                    CircularProgressIndicator()
+                                } else {
+                                    Text("No model rendering available. Please select a directory with a valid model.")
+                                }
                             }
 
                             val model = viewModel.modelState.value

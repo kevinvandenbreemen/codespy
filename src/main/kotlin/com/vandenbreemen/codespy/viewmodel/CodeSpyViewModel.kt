@@ -27,6 +27,9 @@ class CodeSpyViewModel(
     private val _modelState = mutableStateOf<Model?>(null)
     val modelState: State<Model?> = _modelState
 
+    private val _isLoadingState = mutableStateOf(false)
+    val isLoadingState: State<Boolean> = _isLoadingState
+
     private var modelRenderingViewModel: ModelRenderingViewModel? = null
     private val _renderingViewModelState = mutableStateOf<ModelRenderingViewModel?>(null)
     val renderingViewModelState: State<ModelRenderingViewModel?> = _renderingViewModelState
@@ -41,6 +44,9 @@ class CodeSpyViewModel(
             }
 
             if(files.isNotEmpty()) {    //  Only update current directory if we found files
+
+                _isLoadingState.value = true
+
                 currentDirectory = path
 
                 // Store the parent directory for future use
@@ -54,6 +60,8 @@ class CodeSpyViewModel(
                 //  Set up rendering view model
                 modelRenderingViewModel = ModelRenderingViewModel(generatedModel, Dependencies.main.layoutInteractor())
                 _renderingViewModelState.value = modelRenderingViewModel
+
+                _isLoadingState.value = false
             } else {
                 _modelState.value = null
             }
