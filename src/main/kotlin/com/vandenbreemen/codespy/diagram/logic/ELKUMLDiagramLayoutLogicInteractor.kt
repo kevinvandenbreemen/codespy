@@ -2,6 +2,10 @@ package com.vandenbreemen.com.vandenbreemen.codespy.diagram.logic
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.model.PositionedRelation
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.model.PositionedType
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.model.UMLDiagramLayoutModel
@@ -21,6 +25,18 @@ class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
     override fun computeLayoutModel(
         types: List<Type>,
         overarchingSoftwareSystemModel: Model
+    ): UMLDiagramLayoutModel {
+        // For backward compatibility, use default approximation if no TextMeasurer available
+        return computeLayoutModelWithTextMeasurer(types, overarchingSoftwareSystemModel, null)
+    }
+
+    /**
+     * Compute layout with accurate text measurements
+     */
+    fun computeLayoutModelWithTextMeasurer(
+        types: List<Type>,
+        overarchingSoftwareSystemModel: Model,
+        textMeasurer: TextMeasurer?
     ): UMLDiagramLayoutModel {
 
         if (types.isEmpty()) {
@@ -56,8 +72,8 @@ class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
             node.identifier = type.name
             typeToNodeMap[type.name] = node
 
-            // Calculate node size based on content
-            val nodeSize = calculateNodeSize(type)
+            // Calculate node size based on content with accurate text measurement
+            val nodeSize = calculateNodeSize(type, textMeasurer)
             node.width = nodeSize.width.toDouble()
             node.height = nodeSize.height.toDouble()
 
@@ -135,25 +151,62 @@ class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
     }
 
     /**
-     * Calculate optimal node size based on type content
+     * Calculate optimal node size based on type content with accurate text measurements
      */
-    private fun calculateNodeSize(type: Type): Size {
+    private fun calculateNodeSize(type: Type, textMeasurer: TextMeasurer?): Size {
         val baseWidth = 180f
         val baseHeight = 60f
+        val padding = 20f // Horizontal padding for text
 
-        // Calculate width based on longest text
-        val typeNameLength = type.name.length
-        val packageNameLength = type.pkg.length
-        val maxFieldLength = type.fields.maxOfOrNull { "${it.name}: ${it.typeName}".length } ?: 0
+        if (textMeasurer != null) {
+            // Use actual text measurements for accurate sizing
+            val titleStyle = TextStyle(
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
+            )
+            val packageStyle = TextStyle(
+                fontSize = 8.sp
+            )
+            val fieldStyle = TextStyle(
+                fontSize = 10.sp
+            )
 
-        val maxTextLength = maxOf(typeNameLength, packageNameLength, maxFieldLength)
-        val dynamicWidth = maxOf(baseWidth, maxTextLength * 8f) // Approximate character width
+            // Measure actual text widths
+            val titleWidth = textMeasurer.measure(type.name, titleStyle).size.width
+            val packageWidth = textMeasurer.measure(type.pkg, packageStyle).size.width
 
-        // Calculate height based on number of fields
-        val fieldCount = type.fields.size
-        val dynamicHeight = baseHeight + (fieldCount * 20f) // 20px per field
+            val maxFieldWidth = if (type.fields.isNotEmpty()) {
+                type.fields.maxOf { field ->
+                    textMeasurer.measure("${field.name}: ${field.typeName}", fieldStyle).size.width
+                }
+            } else {
+                0
+            }
 
-        return Size(dynamicWidth, dynamicHeight)
+            // Calculate the maximum required width
+            val requiredWidth = maxOf(titleWidth, packageWidth, maxFieldWidth) + padding
+            val dynamicWidth = maxOf(baseWidth, requiredWidth)
+
+            // Calculate height based on number of fields
+            val fieldCount = type.fields.size
+            val dynamicHeight = baseHeight + (fieldCount * 20f) // 20px per field
+
+            return Size(dynamicWidth, dynamicHeight)
+        } else {
+            // Fallback to character count approximation when TextMeasurer not available
+            val typeNameLength = type.name.length
+            val packageNameLength = type.pkg.length
+            val maxFieldLength = type.fields.maxOfOrNull { "${it.name}: ${it.typeName}".length } ?: 0
+
+            val maxTextLength = maxOf(typeNameLength, packageNameLength, maxFieldLength)
+            val dynamicWidth = maxOf(baseWidth, maxTextLength * 8f) // Approximate character width
+
+            // Calculate height based on number of fields
+            val fieldCount = type.fields.size
+            val dynamicHeight = baseHeight + (fieldCount * 20f) // 20px per field
+
+            return Size(dynamicWidth, dynamicHeight)
+        }
     }
 
     /**
