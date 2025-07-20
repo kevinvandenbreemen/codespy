@@ -55,7 +55,7 @@ fun App() {
                     val model = viewModel.modelState.value
                     if (model != null) {
                         Text(
-                            "View surrounding system for type",
+                            "Show Type",
                             modifier = Modifier
                                 .padding(vertical = 8.dp)
                                 .clickable {
