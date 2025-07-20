@@ -56,29 +56,29 @@ class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
             topPort.identifier = "${type.name}_top"
             topPort.x = nodeSize.width.toDouble() / 2 - 5.0
             topPort.y = 0.0
-            topPort.width = 10.0
-            topPort.height = 10.0
+            topPort.width = 5.0
+            topPort.height = 5.0
 
             val bottomPort = ElkGraphUtil.createPort(node)
             bottomPort.identifier = "${type.name}_bottom"
             bottomPort.x = nodeSize.width.toDouble() / 2 - 5.0
             bottomPort.y = nodeSize.height.toDouble() - 10.0
-            bottomPort.width = 10.0
-            bottomPort.height = 10.0
+            bottomPort.width = 5.0
+            bottomPort.height = 5.0
 
             val leftPort = ElkGraphUtil.createPort(node)
             leftPort.identifier = "${type.name}_left"
             leftPort.x = 0.0
             leftPort.y = nodeSize.height.toDouble() / 2 - 5.0
-            leftPort.width = 10.0
-            leftPort.height = 10.0
+            leftPort.width = 5.0
+            leftPort.height = 5.0
 
             val rightPort = ElkGraphUtil.createPort(node)
             rightPort.identifier = "${type.name}_right"
             rightPort.x = nodeSize.width.toDouble() - 10.0
             rightPort.y = nodeSize.height.toDouble() / 2 - 5.0
-            rightPort.width = 10.0
-            rightPort.height = 10.0
+            rightPort.width = 5.0
+            rightPort.height = 5.0
 
             // Add labels for fields and methods (these will be rendered by the drawing logic)
             type.fields.forEach { field ->
