@@ -33,9 +33,19 @@ class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
         // Configure layout options
         root.setProperty(CoreOptions.ALGORITHM, "org.eclipse.elk.layered")
         root.setProperty(CoreOptions.DIRECTION, Direction.DOWN)
-        root.setProperty(CoreOptions.SPACING_NODE_NODE, 150.0) // Increased for more space
-        root.setProperty(CoreOptions.SPACING_EDGE_EDGE, 40.0)  // Increased for more space
-        root.setProperty(CoreOptions.SPACING_EDGE_NODE, 60.0)  // Increased for more space
+        root.setProperty(CoreOptions.SPACING_NODE_NODE, 200.0) // Increased vertical spacing between nodes
+        root.setProperty(CoreOptions.SPACING_EDGE_EDGE, 50.0)  // Increased spacing between parallel edges
+        root.setProperty(CoreOptions.SPACING_EDGE_NODE, 80.0)  // Increased space between edges and nodes
+
+        // Additional layered algorithm specific options for better vertical spacing
+        root.setProperty(
+            org.eclipse.elk.alg.layered.options.LayeredOptions.SPACING_NODE_NODE_BETWEEN_LAYERS,
+            100.0
+        ) // Space between layers
+        root.setProperty(
+            org.eclipse.elk.alg.layered.options.LayeredOptions.SPACING_EDGE_NODE_BETWEEN_LAYERS,
+            100.0
+        ) // Edge-to-node spacing between layers
 
         // Map to keep track of types to nodes
         val typeToNodeMap = mutableMapOf<String, ElkNode>()
