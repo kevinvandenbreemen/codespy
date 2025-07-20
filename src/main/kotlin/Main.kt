@@ -92,7 +92,8 @@ fun App() {
                             }
                             if (showFileDialog.value) {
                                 FileSelectDialog(
-                                    initialDirectory = File(System.getProperty("user.home")),
+                                    initialDirectory = viewModel.getLastParentDirectory()
+                                        ?: File(System.getProperty("user.home")),
                                     onDirectorySelected = {
                                         selectedFile.value = it
                                         showFileDialog.value = false

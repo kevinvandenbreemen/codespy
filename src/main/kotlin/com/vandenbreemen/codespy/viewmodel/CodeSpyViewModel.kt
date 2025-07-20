@@ -43,6 +43,9 @@ class CodeSpyViewModel(
             if(files.isNotEmpty()) {    //  Only update current directory if we found files
                 currentDirectory = path
 
+                // Store the parent directory for future use
+                userPreferenceInteractor.storeLastParentDirectory(path)
+
                 //  Now build model
                 val generatedModel = grucdInteractor.getModel(path)
                 model = generatedModel
@@ -67,4 +70,11 @@ class CodeSpyViewModel(
 
     }
 
+    /**
+     * Get the last parent directory the user worked with, useful for setting default locations
+     * in file dialogs
+     */
+    fun getLastParentDirectory(): File? {
+        return userPreferenceInteractor.getLastParentDirectory()
+    }
 }
