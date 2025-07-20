@@ -5,21 +5,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import java.io.File
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
 
 @Composable
 fun FileSelectDialog(
@@ -45,6 +43,13 @@ fun FileSelectDialog(
         text = {
             Box(modifier = Modifier.size(width = 500.dp, height = 300.dp)) {
                 Column {
+
+                    //  Show the parent directory location as a text
+                    Text(
+                        "pwd: ${currentDirectory.value.absolutePath}",
+                        modifier = Modifier.padding(8.dp)
+                    )
+
                     if (currentDirectory.value.parentFile != null) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.AccountBox, contentDescription = "Folder", modifier = Modifier.size(20.dp))
