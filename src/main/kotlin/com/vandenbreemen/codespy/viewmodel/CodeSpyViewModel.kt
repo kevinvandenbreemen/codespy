@@ -78,6 +78,23 @@ class CodeSpyViewModel(
 
     }
 
+    fun onUserSelectedTypeWithLevels(type: Type, levels: Int) {
+        model?.let { currentModel ->
+            val surroundingTypesModel = grucdInteractor.getSurroundingTypesFor(currentModel, type, levels)
+
+            // Update the model state with the new surrounding types model
+            _modelState.value = surroundingTypesModel
+
+            // Set up rendering view model for the new model
+            modelRenderingViewModel =
+                ModelRenderingViewModel(surroundingTypesModel, Dependencies.main.layoutInteractor())
+            _renderingViewModelState.value = modelRenderingViewModel
+
+            // Focus on the selected type in the new model
+            modelRenderingViewModel!!.focusOnType(type)
+        }
+    }
+
     /**
      * Get the last parent directory the user worked with, useful for setting default locations
      * in file dialogs

@@ -16,6 +16,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.vandenbreemen.codespy.ui.FileSelectDialog
 import com.vandenbreemen.codespy.ui.ModelRendering
 import com.vandenbreemen.codespy.ui.SelectTypeDialog
+import com.vandenbreemen.codespy.ui.SelectTypeWithLevelsDialog
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.ui.logic.SelectTypeDialogViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.viewmodel.CodeSpyViewModel
@@ -149,6 +150,21 @@ fun App() {
                                         }
                                     },
                                     onDismiss = { showTypeDialog.value = false }
+                                )
+                            }
+
+                            if (showTypeAndImmediateTypesDialog.value && model != null) {
+                                SelectTypeWithLevelsDialog(
+                                    viewModel = object : SelectTypeDialogViewModel(model) {
+                                        override fun onTypeSelected(type: Type) {
+                                            // This won't be used in the new dialog, but we need to implement it
+                                        }
+                                    },
+                                    onTypeAndLevelsSelected = { type, levels ->
+                                        viewModel.onUserSelectedTypeWithLevels(type, levels)
+                                        showTypeAndImmediateTypesDialog.value = false
+                                    },
+                                    onDismiss = { showTypeAndImmediateTypesDialog.value = false }
                                 )
                             }
                         }
