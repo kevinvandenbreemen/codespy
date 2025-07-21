@@ -76,6 +76,19 @@ fun App() {
                                     scope.launch { drawerState.close() }
                                 }
                         )
+
+                        // Show "Back to Parent Model" button only if there's a parent model available
+                        if (viewModel.hasParentModel()) {
+                            Text(
+                                "Back to Parent Model",
+                                modifier = Modifier
+                                    .padding(vertical = 8.dp)
+                                    .clickable {
+                                        viewModel.navigateToParentModel()
+                                        scope.launch { drawerState.close() }
+                                    }
+                            )
+                        }
                     }
                 }
             }

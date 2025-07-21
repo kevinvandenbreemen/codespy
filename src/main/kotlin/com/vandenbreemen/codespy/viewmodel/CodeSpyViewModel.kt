@@ -84,6 +84,7 @@ class CodeSpyViewModel(
 
             // Update the model state with the new surrounding types model
             _modelState.value = surroundingTypesModel
+            model = surroundingTypesModel
 
             // Set up rendering view model for the new model
             modelRenderingViewModel =
@@ -101,5 +102,23 @@ class CodeSpyViewModel(
      */
     fun getLastParentDirectory(): File? {
         return userPreferenceInteractor.getLastParentDirectory()
+    }
+
+    fun hasParentModel(): Boolean {
+        return grucdInteractor.hasParentModel()
+    }
+
+    fun navigateToParentModel() {
+        if (grucdInteractor.hasParentModel()) {
+            val parentModel = grucdInteractor.getParentModel()
+
+            // Update the model state with the parent model
+            model = parentModel
+            _modelState.value = parentModel
+
+            // Set up rendering view model for the parent model
+            modelRenderingViewModel = ModelRenderingViewModel(parentModel, Dependencies.main.layoutInteractor())
+            _renderingViewModelState.value = modelRenderingViewModel
+        }
     }
 }
