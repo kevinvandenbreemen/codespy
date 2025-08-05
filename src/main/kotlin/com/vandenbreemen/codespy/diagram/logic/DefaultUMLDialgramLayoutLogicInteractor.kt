@@ -12,7 +12,11 @@ import kotlin.math.*
 
 class DefaultUMLDialgramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
 
-    override fun computeLayoutModel(types: List<Type>, overarchingSoftwareSystemModel: Model): UMLDiagramLayoutModel {
+    override fun computeLayoutModel(
+        types: List<Type>,
+        overarchingSoftwareSystemModel: Model,
+        zoomLevel: Float
+    ): UMLDiagramLayoutModel {
         //  This function will organize the types in the model into a layout model
         //  based on the relationships and dependencies between the types.
         //  It will return a UMLDiagramLayoutModel that can be used for rendering.

@@ -6,6 +6,10 @@ import com.vandenbreemen.grucd.model.Type
 
 interface IUMLDiagramLayoutLogicInteractor {
 
-    fun computeLayoutModel(types: List<Type>, overarchingSoftwareSystemModel: Model): UMLDiagramLayoutModel
+    fun computeLayoutModel(
+        types: List<Type>,
+        overarchingSoftwareSystemModel: Model,
+        zoomLevel: Float
+    ): UMLDiagramLayoutModel
 
 }

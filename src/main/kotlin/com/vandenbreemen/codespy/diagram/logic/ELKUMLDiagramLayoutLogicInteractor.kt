@@ -24,7 +24,8 @@ import org.eclipse.elk.graph.util.ElkGraphUtil
 class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
     override fun computeLayoutModel(
         types: List<Type>,
-        overarchingSoftwareSystemModel: Model
+        overarchingSoftwareSystemModel: Model,
+        zoomLevel: Float
     ): UMLDiagramLayoutModel {
         // For backward compatibility, use default approximation if no TextMeasurer available
         return computeLayoutModelWithTextMeasurer(types, overarchingSoftwareSystemModel, null)
