@@ -32,11 +32,6 @@ fun ModelRendering(
     val scrollToPosition by modelRenderingViewModel.scrollToPosition
     val textMeasurer = rememberTextMeasurer()
 
-    // --- ZOOM STATE ---
-    val minZoom = 0.2f
-    val maxZoom = 3.0f
-    val zoomStep = 0.1f
-
     // Create scroll states for horizontal and vertical scrolling
     val horizontalScrollState = rememberScrollState()
     val verticalScrollState = rememberScrollState()
@@ -86,21 +81,24 @@ fun ModelRendering(
             .padding(8.dp),
         elevation = 4.dp
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            Column {
-                // --- ZOOM BUTTONS ---
-                Row(modifier = Modifier.padding(8.dp)) {
-                    Button(
-                        onClick = { modelRenderingViewModel.zoomOut() },
-                    ) { Text("-") }
-                    Text(text = "  Zoom: %.1fx  ".format(modelRenderingViewModel.zoomLevel))
-                    Button(
-                        onClick = { modelRenderingViewModel.zoomIn() },
-                    ) { Text("+") }
-                }
+
+        Column {
+            // --- ZOOM BUTTONS ---
+            Row(modifier = Modifier.padding(8.dp)) {
+                Button(
+                    onClick = { modelRenderingViewModel.zoomOut() },
+                ) { Text("-") }
+                Text(text = "  Zoom: %.1fx  ".format(modelRenderingViewModel.zoomLevel))
+                Button(
+                    onClick = { modelRenderingViewModel.zoomIn() },
+                ) { Text("+") }
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -156,8 +154,9 @@ fun ModelRendering(
                         }
                     }
                 }
-            }
 
+
+            }
         }
     }
 }
