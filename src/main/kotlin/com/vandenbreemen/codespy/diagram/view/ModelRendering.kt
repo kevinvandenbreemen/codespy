@@ -134,14 +134,25 @@ fun ModelRendering(
                     ) {
                         // Draw relationships first (so they appear behind the boxes)
                         layoutModel.positionedRelations.forEach { relation ->
-                            drawingInteractor.drawRelation(this, relation, textMeasurer)
+                            drawingInteractor.drawRelation(
+                                this,
+                                relation,
+                                textMeasurer,
+                                zoomLevel = modelRenderingViewModel.zoomLevel
+                            )
                         }
 
                         // Draw type boxes on top
                         layoutModel.positionedTypes.forEach { positionedType ->
                             // Highlight focused type
                             val isHighlighted = positionedType.type == focusedType
-                            drawingInteractor.drawTypeBox(this, positionedType, textMeasurer, isHighlighted)
+                            drawingInteractor.drawTypeBox(
+                                this,
+                                positionedType,
+                                textMeasurer,
+                                isHighlighted,
+                                zoomLevel = modelRenderingViewModel.zoomLevel
+                            )
                         }
                     }
                 }

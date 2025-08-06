@@ -11,13 +11,15 @@ interface IDrawingInteractor {
         drawScope: DrawScope,
         positionedType: PositionedType,
         textMeasurer: TextMeasurer,
-        isHighlighted: Boolean = false
+        isHighlighted: Boolean = false,
+        zoomLevel: Float = 1.0f
     )
 
     fun drawRelation(
         drawScope: DrawScope,
         positionedRelation: PositionedRelation,
-        textMeasurer: TextMeasurer
+        textMeasurer: TextMeasurer,
+        zoomLevel: Float = 1.0f
     )
 
     fun drawInheritanceArrow(

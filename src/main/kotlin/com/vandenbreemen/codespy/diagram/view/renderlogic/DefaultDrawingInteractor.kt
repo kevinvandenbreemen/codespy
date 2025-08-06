@@ -28,7 +28,8 @@ class DefaultDrawingInteractor : IDrawingInteractor {
         drawScope: DrawScope,
         positionedType: PositionedType,
         textMeasurer: TextMeasurer,
-        isHighlighted: Boolean
+        isHighlighted: Boolean,
+        zoomLevel: Float
     ) {
         with(drawScope) {
             val rect = Rect(
@@ -59,13 +60,13 @@ class DefaultDrawingInteractor : IDrawingInteractor {
 
             // Smaller font sizes for better readability
             val titleStyle = TextStyle(
-                fontSize = 12.sp, // Reduced from 14sp
+                fontSize = (12 * zoomLevel).sp, // Reduced from 14sp
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
 
             val packageStyle = TextStyle(
-                fontSize = 8.sp, // Reduced from 10sp
+                fontSize = (8 * zoomLevel).sp, // Reduced from 10sp
                 color = Color.DarkGray
             )
 
@@ -131,7 +132,8 @@ class DefaultDrawingInteractor : IDrawingInteractor {
                 fields = positionedType.type.fields,
                 textMeasurer = textMeasurer,
                 startY = separatorY + 5.dp.toPx(),
-                maxWidth = rect.width - 10.dp.toPx() // Leave padding on sides
+                maxWidth = rect.width - 10.dp.toPx(), // Leave padding on sides
+                zoomLevel = zoomLevel
             )
         }
     }
@@ -144,18 +146,19 @@ class DefaultDrawingInteractor : IDrawingInteractor {
         fields: List<com.vandenbreemen.grucd.model.Field>,
         textMeasurer: TextMeasurer,
         startY: Float,
-        maxWidth: Float
+        maxWidth: Float,
+        zoomLevel: Float
     ) {
         if (fields.isEmpty()) return
 
         val fieldStyle = TextStyle(
-            fontSize = 10.sp,
+            fontSize = (10 * zoomLevel).sp,
             color = Color.Black
         )
 
         var currentY = startY
-        val fieldSpacing = 16.dp.toPx() // Space between fields
-        val leftMargin = rect.left + 5.dp.toPx() // Left margin for fields
+        val fieldSpacing = 16.dp.toPx() * zoomLevel // Space between fields, scaled
+        val leftMargin = rect.left + 5.dp.toPx() * zoomLevel // Left margin for fields, scaled
 
         fields.forEach { field ->
 
@@ -171,7 +174,7 @@ class DefaultDrawingInteractor : IDrawingInteractor {
             )
 
             // Check if we have enough space to draw this field
-            if (currentY + fieldResult.size.height <= rect.bottom - 5.dp.toPx()) {
+            if (currentY + fieldResult.size.height <= rect.bottom - 5.dp.toPx() * zoomLevel) {
                 // Truncate field text if it's too wide
                 val truncatedText = if (fieldResult.size.width > maxWidth) {
                     truncateFieldText(fieldText, textMeasurer, fieldStyle, maxWidth)
@@ -198,7 +201,7 @@ class DefaultDrawingInteractor : IDrawingInteractor {
                 currentY += fieldSpacing
             } else {
                 // Not enough space for more fields, draw "..." to indicate truncation
-                if (currentY + fieldSpacing <= rect.bottom - 5.dp.toPx()) {
+                if (currentY + fieldSpacing <= rect.bottom - 5.dp.toPx() * zoomLevel) {
                     val ellipsisResult = textMeasurer.measure("...", fieldStyle)
                     if (leftMargin + ellipsisResult.size.width <= size.width &&
                         currentY + ellipsisResult.size.height <= size.height
@@ -252,7 +255,8 @@ class DefaultDrawingInteractor : IDrawingInteractor {
     override fun drawRelation(
         drawScope: DrawScope,
         positionedRelation: PositionedRelation,
-        textMeasurer: TextMeasurer
+        textMeasurer: TextMeasurer,
+        zoomLevel: Float
     ) {
         with(drawScope) {
             val pathPoints = positionedRelation.pathPoints
@@ -308,7 +312,7 @@ class DefaultDrawingInteractor : IDrawingInteractor {
             }
 
             val labelStyle = TextStyle(
-                fontSize = 8.sp,
+                fontSize = (8 * zoomLevel).sp,
                 color = Color.DarkGray
             )
 
