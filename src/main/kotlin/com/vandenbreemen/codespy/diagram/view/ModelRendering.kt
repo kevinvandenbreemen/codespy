@@ -2,11 +2,10 @@ package com.vandenbreemen.codespy.ui
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
 import androidx.compose.material.Card
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +31,11 @@ fun ModelRendering(
     val focusedType by modelRenderingViewModel.focusedType
     val scrollToPosition by modelRenderingViewModel.scrollToPosition
     val textMeasurer = rememberTextMeasurer()
+
+    // --- ZOOM STATE ---
+    val minZoom = 0.2f
+    val maxZoom = 3.0f
+    val zoomStep = 0.1f
 
     // Create scroll states for horizontal and vertical scrolling
     val horizontalScrollState = rememberScrollState()
@@ -71,8 +75,8 @@ fun ModelRendering(
         }
     }
 
-    // Trigger layout computation when the composable is first composed
-    LaunchedEffect(modelRenderingViewModel) {
+    // Trigger layout computation when the composable is first composed or zoom changes
+    LaunchedEffect(modelRenderingViewModel, modelRenderingViewModel.zoomLevel) {
         modelRenderingViewModel.computeLayoutForModel()
     }
 
@@ -85,46 +89,64 @@ fun ModelRendering(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .horizontalScroll(horizontalScrollState)
-                .verticalScroll(verticalScrollState)
         ) {
-            Canvas(
-                modifier = Modifier
-                    .size(
-                        width = maxOf(800.dp, layoutModel.width.dp),
-                        height = maxOf(600.dp, layoutModel.height.dp)
-                    )
-                    .background(Color.White)
-                    .pointerInput(layoutModel) {
-                        detectTapGestures { offset ->
-                            // Find the clicked type box
-                            val clickedType = layoutModel.positionedTypes.find { positionedType ->
-                                val rect = androidx.compose.ui.geometry.Rect(
-                                    offset = positionedType.position,
-                                    size = positionedType.size
-                                )
-                                rect.contains(offset)
-                            }
+            Column {
+                // --- ZOOM BUTTONS ---
+                Row(modifier = Modifier.padding(8.dp)) {
+                    Button(
+                        onClick = { modelRenderingViewModel.zoomOut() },
+                    ) { Text("-") }
+                    Text(text = "  Zoom: %.1fx  ".format(modelRenderingViewModel.zoomLevel))
+                    Button(
+                        onClick = { modelRenderingViewModel.zoomIn() },
+                    ) { Text("+") }
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .horizontalScroll(horizontalScrollState)
+                        .verticalScroll(verticalScrollState)
+                ) {
+                    Canvas(
+                        modifier = Modifier
+                            .size(
+                                width = maxOf(800.dp, layoutModel.width.dp),
+                                height = maxOf(600.dp, layoutModel.height.dp)
+                            )
+                            .background(Color.White)
+                            .pointerInput(layoutModel) {
+                                detectTapGestures { offset ->
+                                    // Find the clicked type box
+                                    val clickedType = layoutModel.positionedTypes.find { positionedType ->
+                                        val rect = androidx.compose.ui.geometry.Rect(
+                                            offset = positionedType.position,
+                                            size = positionedType.size
+                                        )
+                                        rect.contains(offset)
+                                    }
 
-                            // Trigger callback if a type was clicked
-                            clickedType?.let { positionedType ->
-                                onTypeClick(positionedType.type)
+                                    // Trigger callback if a type was clicked
+                                    clickedType?.let { positionedType ->
+                                        onTypeClick(positionedType.type)
+                                    }
+                                }
                             }
+                    ) {
+                        // Draw relationships first (so they appear behind the boxes)
+                        layoutModel.positionedRelations.forEach { relation ->
+                            drawingInteractor.drawRelation(this, relation, textMeasurer)
+                        }
+
+                        // Draw type boxes on top
+                        layoutModel.positionedTypes.forEach { positionedType ->
+                            // Highlight focused type
+                            val isHighlighted = positionedType.type == focusedType
+                            drawingInteractor.drawTypeBox(this, positionedType, textMeasurer, isHighlighted)
                         }
                     }
-            ) {
-                // Draw relationships first (so they appear behind the boxes)
-                layoutModel.positionedRelations.forEach { relation ->
-                    drawingInteractor.drawRelation(this, relation, textMeasurer)
-                }
-
-                // Draw type boxes on top
-                layoutModel.positionedTypes.forEach { positionedType ->
-                    // Highlight focused type
-                    val isHighlighted = positionedType.type == focusedType
-                    drawingInteractor.drawTypeBox(this, positionedType, textMeasurer, isHighlighted)
                 }
             }
+
         }
     }
 }

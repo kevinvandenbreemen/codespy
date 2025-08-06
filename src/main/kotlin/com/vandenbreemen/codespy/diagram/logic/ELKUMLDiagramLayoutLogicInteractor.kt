@@ -28,16 +28,17 @@ class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
         zoomLevel: Float
     ): UMLDiagramLayoutModel {
         // For backward compatibility, use default approximation if no TextMeasurer available
-        return computeLayoutModelWithTextMeasurer(types, overarchingSoftwareSystemModel, null)
+        return computeLayoutModelWithTextMeasurer(types, overarchingSoftwareSystemModel, null, zoomLevel)
     }
 
     /**
-     * Compute layout with accurate text measurements
+     * Compute layout with accurate text measurements and zoom scaling
      */
     fun computeLayoutModelWithTextMeasurer(
         types: List<Type>,
         overarchingSoftwareSystemModel: Model,
-        textMeasurer: TextMeasurer?
+        textMeasurer: TextMeasurer?,
+        zoomLevel: Float = 1.0f
     ): UMLDiagramLayoutModel {
 
         if (types.isEmpty()) {
@@ -47,22 +48,22 @@ class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
         //  Step 1: Create ELK graph from types
         val root = ElkGraphUtil.createGraph()
 
-        // Configure layout options
+        // Configure layout options (scaled by zoomLevel)
         root.setProperty(CoreOptions.ALGORITHM, "org.eclipse.elk.layered")
         root.setProperty(CoreOptions.DIRECTION, Direction.DOWN)
-        root.setProperty(CoreOptions.SPACING_NODE_NODE, 200.0) // Increased vertical spacing between nodes
-        root.setProperty(CoreOptions.SPACING_EDGE_EDGE, 50.0)  // Increased spacing between parallel edges
-        root.setProperty(CoreOptions.SPACING_EDGE_NODE, 80.0)  // Increased space between edges and nodes
+        root.setProperty(CoreOptions.SPACING_NODE_NODE, 200.0 * zoomLevel) // Scaled vertical spacing
+        root.setProperty(CoreOptions.SPACING_EDGE_EDGE, 50.0 * zoomLevel)  // Scaled edge spacing
+        root.setProperty(CoreOptions.SPACING_EDGE_NODE, 80.0 * zoomLevel)  // Scaled space between edges and nodes
 
         // Additional layered algorithm specific options for better vertical spacing
         root.setProperty(
             org.eclipse.elk.alg.layered.options.LayeredOptions.SPACING_NODE_NODE_BETWEEN_LAYERS,
-            100.0
-        ) // Space between layers
+            100.0 * zoomLevel
+        ) // Scaled space between layers
         root.setProperty(
             org.eclipse.elk.alg.layered.options.LayeredOptions.SPACING_EDGE_NODE_BETWEEN_LAYERS,
-            100.0
-        ) // Edge-to-node spacing between layers
+            100.0 * zoomLevel
+        ) // Scaled edge-to-node spacing
 
         // Map to keep track of types to nodes
         val typeToNodeMap = mutableMapOf<String, ElkNode>()
@@ -73,39 +74,41 @@ class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
             node.identifier = type.name
             typeToNodeMap[type.name] = node
 
-            // Calculate node size based on content with accurate text measurement
-            val nodeSize = calculateNodeSize(type, textMeasurer)
+            // Calculate node size based on content with accurate text measurement and zoom
+            val nodeSize = calculateNodeSize(type, textMeasurer, zoomLevel)
             node.width = nodeSize.width.toDouble()
             node.height = nodeSize.height.toDouble()
 
-            // Create ports for better edge connections
+            // Create ports for better edge connections (scaled by zoomLevel)
+            val portSize = 5.0 * zoomLevel
+            val portOffset = portSize
             val topPort = ElkGraphUtil.createPort(node)
             topPort.identifier = "${type.name}_top"
-            topPort.x = nodeSize.width.toDouble() / 2 - 5.0
+            topPort.x = nodeSize.width.toDouble() / 2 - portOffset
             topPort.y = 0.0
-            topPort.width = 5.0
-            topPort.height = 5.0
+            topPort.width = portSize
+            topPort.height = portSize
 
             val bottomPort = ElkGraphUtil.createPort(node)
             bottomPort.identifier = "${type.name}_bottom"
-            bottomPort.x = nodeSize.width.toDouble() / 2 - 5.0
-            bottomPort.y = nodeSize.height.toDouble() - 10.0
-            bottomPort.width = 5.0
-            bottomPort.height = 5.0
+            bottomPort.x = nodeSize.width.toDouble() / 2 - portOffset
+            bottomPort.y = nodeSize.height.toDouble() - portSize * 2
+            bottomPort.width = portSize
+            bottomPort.height = portSize
 
             val leftPort = ElkGraphUtil.createPort(node)
             leftPort.identifier = "${type.name}_left"
             leftPort.x = 0.0
-            leftPort.y = nodeSize.height.toDouble() / 2 - 5.0
-            leftPort.width = 5.0
-            leftPort.height = 5.0
+            leftPort.y = nodeSize.height.toDouble() / 2 - portOffset
+            leftPort.width = portSize
+            leftPort.height = portSize
 
             val rightPort = ElkGraphUtil.createPort(node)
             rightPort.identifier = "${type.name}_right"
-            rightPort.x = nodeSize.width.toDouble() - 10.0
-            rightPort.y = nodeSize.height.toDouble() / 2 - 5.0
-            rightPort.width = 5.0
-            rightPort.height = 5.0
+            rightPort.x = nodeSize.width.toDouble() - portSize * 2
+            rightPort.y = nodeSize.height.toDouble() / 2 - portOffset
+            rightPort.width = portSize
+            rightPort.height = portSize
 
             // Add labels for fields and methods (these will be rendered by the drawing logic)
             type.fields.forEach { field ->
@@ -152,24 +155,24 @@ class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
     }
 
     /**
-     * Calculate optimal node size based on type content with accurate text measurements
+     * Calculate optimal node size based on type content with accurate text measurements and zoom
      */
-    private fun calculateNodeSize(type: Type, textMeasurer: TextMeasurer?): Size {
-        val baseWidth = 180f
-        val baseHeight = 60f
-        val padding = 20f // Horizontal padding for text
+    private fun calculateNodeSize(type: Type, textMeasurer: TextMeasurer?, zoomLevel: Float = 1.0f): Size {
+        val baseWidth = 180f * zoomLevel
+        val baseHeight = 60f * zoomLevel
+        val padding = 20f * zoomLevel // Horizontal padding for text
 
         if (textMeasurer != null) {
             // Use actual text measurements for accurate sizing
             val titleStyle = TextStyle(
-                fontSize = 12.sp,
+                fontSize = (12 * zoomLevel).sp,
                 fontWeight = FontWeight.Bold
             )
             val packageStyle = TextStyle(
-                fontSize = 8.sp
+                fontSize = (8 * zoomLevel).sp
             )
             val fieldStyle = TextStyle(
-                fontSize = 10.sp
+                fontSize = (10 * zoomLevel).sp
             )
 
             // Measure actual text widths
@@ -190,7 +193,7 @@ class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
 
             // Calculate height based on number of fields
             val fieldCount = type.fields.size
-            val dynamicHeight = baseHeight + (fieldCount * 20f) // 20px per field
+            val dynamicHeight = baseHeight + (fieldCount * 20f * zoomLevel) // Scaled per-field height
 
             return Size(dynamicWidth, dynamicHeight)
         } else {
@@ -200,11 +203,11 @@ class ELKUMLDiagramLayoutLogicInteractor : IUMLDiagramLayoutLogicInteractor {
             val maxFieldLength = type.fields.maxOfOrNull { "${it.name}: ${it.typeName}".length } ?: 0
 
             val maxTextLength = maxOf(typeNameLength, packageNameLength, maxFieldLength)
-            val dynamicWidth = maxOf(baseWidth, maxTextLength * 8f) // Approximate character width
+            val dynamicWidth = maxOf(baseWidth, maxTextLength * 8f * zoomLevel) // Scaled char width
 
             // Calculate height based on number of fields
             val fieldCount = type.fields.size
-            val dynamicHeight = baseHeight + (fieldCount * 20f) // 20px per field
+            val dynamicHeight = baseHeight + (fieldCount * 20f * zoomLevel) // Scaled per-field height
 
             return Size(dynamicWidth, dynamicHeight)
         }
