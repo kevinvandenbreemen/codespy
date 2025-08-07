@@ -13,8 +13,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.vandenbreemen.codespy.diagram.view.ModelRendering
 import com.vandenbreemen.codespy.ui.FileSelectDialog
-import com.vandenbreemen.codespy.ui.ModelRendering
 import com.vandenbreemen.codespy.ui.SelectTypeDialog
 import com.vandenbreemen.codespy.ui.SelectTypeWithLevelsDialog
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies

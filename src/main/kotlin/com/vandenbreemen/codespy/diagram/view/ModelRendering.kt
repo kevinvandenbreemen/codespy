@@ -1,4 +1,4 @@
-package com.vandenbreemen.codespy.ui
+package com.vandenbreemen.codespy.diagram.view
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -18,6 +19,7 @@ import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.view.renderlogic.IDrawingInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.viewmodel.ModelRenderingViewModel
 import com.vandenbreemen.grucd.model.Type
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -65,7 +67,7 @@ fun ModelRendering(
     LaunchedEffect(focusedType) {
         focusedType?.let {
             // Clear the scroll position after a delay to allow scrolling animation to complete
-            kotlinx.coroutines.delay(1000) // 1 second delay
+            delay(1000) // 1 second delay
             modelRenderingViewModel.clearFocus()
         }
     }
@@ -116,7 +118,7 @@ fun ModelRendering(
                                 detectTapGestures { offset ->
                                     // Find the clicked type box
                                     val clickedType = layoutModel.positionedTypes.find { positionedType ->
-                                        val rect = androidx.compose.ui.geometry.Rect(
+                                        val rect = Rect(
                                             offset = positionedType.position,
                                             size = positionedType.size
                                         )
