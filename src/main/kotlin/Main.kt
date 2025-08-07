@@ -140,7 +140,12 @@ fun App() {
                             }
                             // Render the model if available
                             viewModel.renderingViewModelState.value?.let {
-                                ModelRendering(modelRenderingViewModel = it)
+                                ModelRendering(
+                                    modelRenderingViewModel = it,
+                                    onTypeClick = { typeClicked ->
+                                        viewModel.onUserSelectedType(typeClicked)
+                                    }
+                                )
                             } ?: run {
 
                                 //  Check view model for spinner state.  If present show spinner
