@@ -144,7 +144,8 @@ fun App() {
                                     modelRenderingViewModel = it,
                                     onTypeClick = { typeClicked ->
                                         viewModel.onUserSelectedType(typeClicked)
-                                    }
+                                    },
+                                    codeSpyViewModel = viewModel
                                 )
                             } ?: run {
 

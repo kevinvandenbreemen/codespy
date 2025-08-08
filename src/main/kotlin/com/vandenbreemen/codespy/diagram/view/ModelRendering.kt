@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.view.renderlogic.IDrawingInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.viewmodel.ModelRenderingViewModel
+import com.vandenbreemen.com.vandenbreemen.codespy.viewmodel.CodeSpyViewModel
 import com.vandenbreemen.grucd.model.Type
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -25,17 +26,18 @@ fun ModelRendering(
     modifier: Modifier = Modifier,
     modelRenderingViewModel: ModelRenderingViewModel,
     drawingInteractor: IDrawingInteractor = Dependencies.main.drawingInteractor(),
-    onTypeClick: (Type) -> Unit = {} // Add callback for type clicks
+    onTypeClick: (Type) -> Unit = {},
+    codeSpyViewModel: CodeSpyViewModel? = null // Add CodeSpyViewModel parameter
 ) {
     val layoutModel by modelRenderingViewModel.modelState
     val focusedType by modelRenderingViewModel.focusedType
     val scrollToPosition by modelRenderingViewModel.scrollToPosition
     val textMeasurer = rememberTextMeasurer()
 
-    // Popup menu state
-    var showPopupMenu by remember { mutableStateOf(false) }
-    var popupMenuOffset by remember { mutableStateOf(Offset.Zero) }
-    var selectedType by remember { mutableStateOf<Type?>(null) }
+    // Use CodeSpyViewModel's popup menu state if available, otherwise use local state
+    val showPopupMenu by (codeSpyViewModel?.showPopupMenu ?: remember { mutableStateOf(false) })
+    val popupMenuOffset by (codeSpyViewModel?.popupMenuOffset ?: remember { mutableStateOf(Offset.Zero) })
+    val selectedType by (codeSpyViewModel?.selectedTypeForPopup ?: remember { mutableStateOf<Type?>(null) })
 
     // Create scroll states for horizontal and vertical scrolling
     val horizontalScrollState = rememberScrollState()
@@ -130,20 +132,17 @@ fun ModelRendering(
 
                                     // Show popup menu if a type was clicked
                                     clickedType?.let { positionedType ->
-                                        selectedType = positionedType.type
                                         // Calculate the popup position accounting for scroll offset
                                         val adjustedOffset = Offset(
                                             x = offset.x - horizontalScrollState.value,
                                             y = offset.y - verticalScrollState.value
                                         )
-                                        popupMenuOffset = adjustedOffset
-                                        showPopupMenu = true
-                                        // Also trigger the existing callback
-                                        onTypeClick(positionedType.type)
+                                        // Use CodeSpyViewModel if available, otherwise fallback to callback
+                                        codeSpyViewModel?.showPopupMenuForType(positionedType.type, adjustedOffset)
+                                            ?: onTypeClick(positionedType.type)
                                     } ?: run {
                                         // Hide popup menu if clicked outside any type
-                                        showPopupMenu = false
-                                        selectedType = null
+                                        codeSpyViewModel?.hidePopupMenu()
                                     }
                                 }
                             }
@@ -177,23 +176,19 @@ fun ModelRendering(
                 selectedType?.let { type ->
                     DropdownMenu(
                         expanded = showPopupMenu,
-                        onDismissRequest = { showPopupMenu = false },
+                        onDismissRequest = { codeSpyViewModel?.hidePopupMenu() },
                         offset = DpOffset(popupMenuOffset.x.dp, popupMenuOffset.y.dp)
                     ) {
                         // Menu items for the popup
                         DropdownMenuItem(onClick = {
-                            // Handle menu item click
-                            println("Menu item 1 clicked for type: $type")
-                            showPopupMenu = false
+                            codeSpyViewModel?.onPopupMenuItemSelected("focus")
                         }) {
-                            Text("Menu Item 1")
+                            Text("Focus on Type")
                         }
                         DropdownMenuItem(onClick = {
-                            // Handle menu item click
-                            println("Menu item 2 clicked for type: $type")
-                            showPopupMenu = false
+                            codeSpyViewModel?.onPopupMenuItemSelected("surrounding")
                         }) {
-                            Text("Menu Item 2")
+                            Text("Show Surrounding Types")
                         }
                     }
                 }

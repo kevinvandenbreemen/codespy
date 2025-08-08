@@ -2,6 +2,7 @@ package com.vandenbreemen.com.vandenbreemen.codespy.viewmodel
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.geometry.Offset
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.viewmodel.ModelRenderingViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.interactor.GrucdInteractor
@@ -33,6 +34,16 @@ class CodeSpyViewModel(
     private var modelRenderingViewModel: ModelRenderingViewModel? = null
     private val _renderingViewModelState = mutableStateOf<ModelRenderingViewModel?>(null)
     val renderingViewModelState: State<ModelRenderingViewModel?> = _renderingViewModelState
+
+    // Popup menu state
+    private val _showPopupMenu = mutableStateOf(false)
+    val showPopupMenu: State<Boolean> = _showPopupMenu
+
+    private val _popupMenuOffset = mutableStateOf(Offset.Zero)
+    val popupMenuOffset: State<Offset> = _popupMenuOffset
+
+    private val _selectedTypeForPopup = mutableStateOf<Type?>(null)
+    val selectedTypeForPopup: State<Type?> = _selectedTypeForPopup
 
     fun selectNewDirectory(path: File) {
         viewModelScope.launch {
@@ -70,7 +81,7 @@ class CodeSpyViewModel(
         }
     }
 
-    fun onUserSelectedType(type: Type) {
+    fun onUserSelectedType(type: Type, onScreenOffset: Offset? = null) {
 
         //  There should never be a case where this is null, so force unwrapping here
         //  to make it easier to spot a bug!
@@ -120,5 +131,38 @@ class CodeSpyViewModel(
             modelRenderingViewModel = ModelRenderingViewModel(parentModel, Dependencies.main.layoutInteractor())
             _renderingViewModelState.value = modelRenderingViewModel
         }
+    }
+
+    // Popup menu functions
+    fun showPopupMenuForType(type: Type, offset: Offset) {
+        _selectedTypeForPopup.value = type
+        _popupMenuOffset.value = offset
+        _showPopupMenu.value = true
+        // Also trigger the existing focus behavior
+        onUserSelectedType(type)
+    }
+
+    fun hidePopupMenu() {
+        _showPopupMenu.value = false
+        _selectedTypeForPopup.value = null
+    }
+
+    fun onPopupMenuItemSelected(menuItem: String) {
+        selectedTypeForPopup.value?.let { type ->
+            when (menuItem) {
+                "focus" -> {
+                    // Focus on the type (already done in showPopupMenuForType)
+                    println("Focusing on type: ${type.name}")
+                }
+
+                "surrounding" -> {
+                    // Show surrounding types
+                    onUserSelectedTypeWithLevels(type, 1)
+                    println("Showing surrounding types for: ${type.name}")
+                }
+                // Add more menu items as needed
+            }
+        }
+        hidePopupMenu()
     }
 }
