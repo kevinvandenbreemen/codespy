@@ -179,16 +179,13 @@ fun ModelRendering(
                         onDismissRequest = { codeSpyViewModel?.hidePopupMenu() },
                         offset = DpOffset(popupMenuOffset.x.dp, popupMenuOffset.y.dp)
                     ) {
-                        // Menu items for the popup
-                        DropdownMenuItem(onClick = {
-                            codeSpyViewModel?.onPopupMenuItemSelected("focus")
-                        }) {
-                            Text("Focus on Type")
-                        }
-                        DropdownMenuItem(onClick = {
-                            codeSpyViewModel?.onPopupMenuItemSelected("surrounding")
-                        }) {
-                            Text("Show Surrounding Types")
+                        // Generate menu items based on available actions for this type
+                        codeSpyViewModel?.getAvailableActionsForType(type)?.forEach { action ->
+                            DropdownMenuItem(onClick = {
+                                codeSpyViewModel.executeAction(action)
+                            }) {
+                                Text(codeSpyViewModel.getActionDisplayText(action))
+                            }
                         }
                     }
                 }

@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
+import com.vandenbreemen.com.vandenbreemen.codespy.diagram.model.UMLDiagramAction
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.viewmodel.ModelRenderingViewModel
 import com.vandenbreemen.com.vandenbreemen.codespy.interactor.GrucdInteractor
 import com.vandenbreemen.com.vandenbreemen.codespy.interactor.UserPreferenceInteractor
@@ -147,22 +148,55 @@ class CodeSpyViewModel(
         _selectedTypeForPopup.value = null
     }
 
-    fun onPopupMenuItemSelected(menuItem: String) {
+    /**
+     * Get available actions for a type in the diagram
+     */
+    fun getAvailableActionsForType(type: Type): List<UMLDiagramAction> {
+        // Determine which actions are available based on the type and current state
+        val actions = mutableListOf<UMLDiagramAction>()
+
+        // Focus is always available
+        actions.add(UMLDiagramAction.FocusOnType)
+
+        // Show surrounding types if we have relationships
+        model?.let { currentModel ->
+            if (currentModel.types.size > 1) { // Only show if there are other types to show relationships with
+                actions.add(UMLDiagramAction.ShowSurroundingTypes)
+            }
+        }
+
+        return actions
+    }
+
+    /**
+     * Execute a diagram action for the selected type
+     */
+    fun executeAction(action: UMLDiagramAction) {
         selectedTypeForPopup.value?.let { type ->
-            when (menuItem) {
-                "focus" -> {
-                    // Focus on the type (already done in showPopupMenuForType)
+            when (action) {
+                UMLDiagramAction.FocusOnType -> {
+                    // Focus on the type (already done in showPopupMenuForType, but we can do it again for clarity)
+                    onUserSelectedType(type)
                     println("Focusing on type: ${type.name}")
                 }
 
-                "surrounding" -> {
-                    // Show surrounding types
+                UMLDiagramAction.ShowSurroundingTypes -> {
+                    // Show surrounding types with 1 level depth
                     onUserSelectedTypeWithLevels(type, 1)
                     println("Showing surrounding types for: ${type.name}")
                 }
-                // Add more menu items as needed
             }
         }
         hidePopupMenu()
+    }
+
+    /**
+     * Get display text for an action
+     */
+    fun getActionDisplayText(action: UMLDiagramAction): String {
+        return when (action) {
+            UMLDiagramAction.FocusOnType -> "Focus on Type"
+            UMLDiagramAction.ShowSurroundingTypes -> "Show Surrounding Types"
+        }
     }
 }
