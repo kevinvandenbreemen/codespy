@@ -52,8 +52,14 @@ class GrucdInteractor {
      * Check if there are more than one surrounding types for the given type at the specified depth
      * without creating a new model. Useful for determining if "Show Surrounding Types" action should be available.
      */
-    fun hasMoreThanOneSurroundingTypeFor(model: Model, type: Type, numLevels: Int = 3): Boolean {
+    fun canShowSurroundingTypesFor(model: Model, type: Type, numLevels: Int = 3): Boolean {
         val surroundingModel = model.getTypesReferencingOrReferencedBy(type, numLevels)
+
+        //  Make sure surrounding model type list isn't exactly the same as the original model type list
+        if (surroundingModel.types == model.types) {
+            return false
+        }
+
         return surroundingModel.types.size > 1
     }
 }
