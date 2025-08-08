@@ -160,7 +160,7 @@ class CodeSpyViewModel(
 
         // Show surrounding types if we have relationships
         model?.let { currentModel ->
-            if (currentModel.types.size > 1) { // Only show if there are other types to show relationships with
+            if (grucdInteractor.hasMoreThanOneSurroundingTypeFor(currentModel, type, 1)) {
                 actions.add(UMLDiagramAction.ShowSurroundingTypes)
             }
         }

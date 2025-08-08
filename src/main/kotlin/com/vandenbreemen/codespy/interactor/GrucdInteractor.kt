@@ -48,4 +48,12 @@ class GrucdInteractor {
             ?: throw IllegalStateException("No parent model available in stack - please call hasParentModel() first")
     }
 
+    /**
+     * Check if there are more than one surrounding types for the given type at the specified depth
+     * without creating a new model. Useful for determining if "Show Surrounding Types" action should be available.
+     */
+    fun hasMoreThanOneSurroundingTypeFor(model: Model, type: Type, numLevels: Int = 3): Boolean {
+        val surroundingModel = model.getTypesReferencingOrReferencedBy(type, numLevels)
+        return surroundingModel.types.size > 1
+    }
 }
