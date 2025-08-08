@@ -99,6 +99,18 @@ fun ModelRendering(
                 Button(
                     onClick = { modelRenderingViewModel.zoomIn() },
                 ) { Text("+") }
+
+                // Show "Back to Parent" button if user is viewing surrounding types
+                codeSpyViewModel?.let { viewModel ->
+                    if (viewModel.hasParentModel()) {
+                        Button(
+                            onClick = { viewModel.navigateToParentModel() },
+                            modifier = Modifier.padding(start = 16.dp)
+                        ) {
+                            Text("← Back to Parent")
+                        }
+                    }
+                }
             }
 
             Box(
