@@ -3,17 +3,15 @@ package com.vandenbreemen.codespy.diagram.view
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.vandenbreemen.com.vandenbreemen.codespy.di.Dependencies
 import com.vandenbreemen.com.vandenbreemen.codespy.diagram.view.renderlogic.IDrawingInteractor
@@ -33,6 +31,11 @@ fun ModelRendering(
     val focusedType by modelRenderingViewModel.focusedType
     val scrollToPosition by modelRenderingViewModel.scrollToPosition
     val textMeasurer = rememberTextMeasurer()
+
+    // Popup menu state
+    var showPopupMenu by remember { mutableStateOf(false) }
+    var popupMenuOffset by remember { mutableStateOf(Offset.Zero) }
+    var selectedType by remember { mutableStateOf<Type?>(null) }
 
     // Create scroll states for horizontal and vertical scrolling
     val horizontalScrollState = rememberScrollState()
@@ -125,9 +128,22 @@ fun ModelRendering(
                                         rect.contains(offset)
                                     }
 
-                                    // Trigger callback if a type was clicked
+                                    // Show popup menu if a type was clicked
                                     clickedType?.let { positionedType ->
+                                        selectedType = positionedType.type
+                                        // Calculate the popup position accounting for scroll offset
+                                        val adjustedOffset = Offset(
+                                            x = offset.x - horizontalScrollState.value,
+                                            y = offset.y - verticalScrollState.value
+                                        )
+                                        popupMenuOffset = adjustedOffset
+                                        showPopupMenu = true
+                                        // Also trigger the existing callback
                                         onTypeClick(positionedType.type)
+                                    } ?: run {
+                                        // Hide popup menu if clicked outside any type
+                                        showPopupMenu = false
+                                        selectedType = null
                                     }
                                 }
                             }
@@ -157,7 +173,30 @@ fun ModelRendering(
                     }
                 }
 
-
+                // --- POPUP MENU ---
+                selectedType?.let { type ->
+                    DropdownMenu(
+                        expanded = showPopupMenu,
+                        onDismissRequest = { showPopupMenu = false },
+                        offset = DpOffset(popupMenuOffset.x.dp, popupMenuOffset.y.dp)
+                    ) {
+                        // Menu items for the popup
+                        DropdownMenuItem(onClick = {
+                            // Handle menu item click
+                            println("Menu item 1 clicked for type: $type")
+                            showPopupMenu = false
+                        }) {
+                            Text("Menu Item 1")
+                        }
+                        DropdownMenuItem(onClick = {
+                            // Handle menu item click
+                            println("Menu item 2 clicked for type: $type")
+                            showPopupMenu = false
+                        }) {
+                            Text("Menu Item 2")
+                        }
+                    }
+                }
             }
         }
     }
