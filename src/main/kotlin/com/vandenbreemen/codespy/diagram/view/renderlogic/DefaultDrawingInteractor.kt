@@ -165,6 +165,7 @@ class DefaultDrawingInteractor : IDrawingInteractor {
             val visibilityPrefix = when (field.visibility) {
                 com.vandenbreemen.grucd.model.Visibility.Public -> "+"
                 com.vandenbreemen.grucd.model.Visibility.Private -> "-"
+                com.vandenbreemen.grucd.model.Visibility.Internal -> "~"
             }
 
             val fieldText = "$visibilityPrefix ${field.name}: ${field.typeName}"
