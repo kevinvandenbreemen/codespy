@@ -59,6 +59,9 @@ class CodeSpyViewModel(
 
                 _isLoadingState.value = true
 
+                //  Clear out the rendering model since we're gonna be rendering a new model
+                _renderingViewModelState.value = null
+
                 currentDirectory = path
 
                 // Store the parent directory for future use
