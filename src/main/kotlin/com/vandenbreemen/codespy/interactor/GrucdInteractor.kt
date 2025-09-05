@@ -11,16 +11,13 @@ class GrucdInteractor {
     // Stack of models
     private val modelStack: Stack<Model> = Stack()
 
-    private var extractor: SourceCodeExtractor? = null
+    private val extractor: SourceCodeExtractor by lazy {
+        SourceCodeExtractor()
+    }
 
     fun getSourceCodeFiles(path: File): List<String>  {
 
-        val extractor = SourceCodeExtractor().detectFileDeltas()
-        return extractor.getFilenamesToVisit(null, path.absolutePath).also {
-            if(it.isNotEmpty()) {
-                this.extractor = extractor
-            }
-        }
+        return extractor.getFilenamesToVisit(null, path.absolutePath)
 
     }
 
